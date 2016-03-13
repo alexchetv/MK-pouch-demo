@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<!-- Basic Page Needs
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<meta charset="utf-8">
+	<title>Your page title here :)</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+	<!-- Mobile Specific Metas
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- FONT
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+	<!-- CSS
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="stylesheet" href="/lib/skeleton/css/normalize.css">
+	<link rel="stylesheet" href="/lib/skeleton/css/skeleton.css">
+
+
+	<!-- Optional: Include the Font Awesome for using some icons -->
+	<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.css"/>
+
+	<!-- FormValidation CSS file -->
+	<link rel="stylesheet" href="/lib/Formvalidation/fv.min.css">
+	<link rel="stylesheet" href="/lib/Formvalidation/skeleton.css">
+
+	<link rel="stylesheet" href="/css/custom.css">
+	<!-- JS
+		–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<script src="/lib/jquery/dist/jquery.min.js"></script>
+
+	<!-- FormValidation plugin and the class supports validating Skeleton form -->
+	<script src="/lib/Formvalidation/fv.min.js"></script>
+	<script src="/lib/Formvalidation/skeleton.js"></script>
+
+	<script src="/lib/Matreshka/matreshka.min.js"></script>
+	<script src="/lib/matreshka-router/matreshka-router.js"></script>
+
+	<!-- Favicon
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="icon" type="image/png" href="/lib/skeleton/images/favicon.png">
+
+</head>
+<body>
+
+<!-- Primary Page Layout
+–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<div class="container">
+	<div class="row" id="app">
+		<div class="u-pull-right"><span class="page-span"><a class="page-link" href="/login">Login</a></span> or <span
+				class="page-span"><a class="page-link" href="/register">Register</a></span></div>
+	</div>
+	<div class="one-half column hidden" style="margin-top: 10px" data-page="login">
+		<form id="login-form">
+			<h4>Login form</h4>
+
+			<div class="row">
+				<label>Username</label>
+				<input class="u-full-width" name="username" type="text" placeholder="Username"/>
+			</div>
+			<div class="row">
+				<label>Password</label>
+				<input class="u-full-width" name="password" type="password" placeholder="Password"/>
+			</div>
+			<div class="row">
+				<label>
+					<input type="checkbox" class="show-password"/>
+					<span class="label-body">Show Password</span>
+				</label>
+			</div>
+			<div class="row">
+				<div class="four columns">
+					<input class="button-primary" id="btn-login" type="submit" value="Login"/>
+				</div>
+				<div class="eight columns">
+					<label>
+						<input type="checkbox" class="remember-me"/>
+						<span class="label-body">Remember me</span>
+					</label>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="one-half column hidden" style="margin-top: 10px" data-page="register">
+		<form id="register-form">
+			<h4>Register form</h4>
+
+			<div class="row">
+				<label>Username</label>
+				<input class="u-full-width" name="username" type="text" placeholder="Username"/>
+			</div>
+			<div class="row">
+				<label>Email</label>
+				<input class="u-full-width" name="email" type="text" placeholder="Email"/>
+			</div>
+			<div class="row">
+				<label>Password</label>
+				<input class="u-full-width" name="password" type="password" placeholder="Password"/>
+			</div>
+			<div class="row">
+				<label>Confirm Password</label>
+				<input class="u-full-width" name="confirm" type="password" placeholder="Confirm Password"/>
+			</div>
+			<div class="row">
+				<label>
+					<input type="checkbox" class="show-password"/>
+					<span class="label-body">Show Password</span>
+				</label>
+			</div>
+			<div class="row">
+				<div class="four columns">
+					<input class="button-primary" id="btn-register" type="submit" value="Register"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+<script src="/js/valid.js"></script>
+<script src="/js/app.js"></script>
+</html>

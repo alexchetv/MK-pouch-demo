@@ -1,0 +1,9 @@
+.page-span.active a {
+    text-decoration: none;
+    color: inherit;
+}
+
+div.hidden {
+    visibility: collapse;
+    display: none;
+}

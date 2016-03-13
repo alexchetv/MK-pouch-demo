@@ -1,0 +1,7 @@
+{
+  "name": "superlogin-demo",
+  "private": true,
+  "dependencies": {
+    "jquerymy": "~1.2.3"
+  }
+}
