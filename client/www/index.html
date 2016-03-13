@@ -48,6 +48,74 @@
 
 </head>
 <body>
+<!-- LoginForm template
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<script type="text/html" id="login-form-template">
+	<form id="login-form">
+		<h4>Login form</h4>
+
+		<div class="row">
+			<label>Username</label>
+			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
+		</div>
+		<div class="row">
+			<label>Password</label>
+			<input class="u-full-width" name="password" type="password" placeholder="Password"/>
+		</div>
+		<div class="row">
+			<label>
+				<input type="checkbox" class="show-password"/>
+				<span class="label-body">Show Password</span>
+			</label>
+		</div>
+		<div class="row">
+			<div class="four columns">
+				<input class="button-primary" id="btn-login" type="submit" value="Login"/>
+			</div>
+			<div class="eight columns">
+				<label>
+					<input type="checkbox" class="remember-me"/>
+					<span class="label-body">Remember me</span>
+				</label>
+			</div>
+		</div>
+	</form>
+</script>
+
+<!-- RegisterForm template
+	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<script type="text/html" id="register-form-template">
+	<form id="register-form">
+		<h4>Register form</h4>
+		<div class="row">
+			<label>Username</label>
+			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
+		</div>
+		<div class="row">
+			<label>Email</label>
+			<input class="u-full-width" name="email" type="text" placeholder="Email"/>
+		</div>
+		<div class="row">
+			<label>Password</label>
+			<input class="u-full-width" name="password" type="password" placeholder="Password"/>
+		</div>
+		<div class="row">
+			<label>Confirm Password</label>
+			<input class="u-full-width" name="confirm" type="password" placeholder="Confirm Password"/>
+		</div>
+		<div class="row">
+			<label>
+				<input type="checkbox" class="show-password"/>
+				<span class="label-body">Show Password</span>
+			</label>
+		</div>
+		<div class="row">
+			<div class="four columns">
+				<input class="button-primary" id="btn-register" type="submit" value="Register"/>
+			</div>
+		</div>
+	</form>
+</script>
 
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -56,69 +124,7 @@
 		<div class="u-pull-right"><span class="page-span"><a class="page-link" href="/login">Login</a></span> or <span
 				class="page-span"><a class="page-link" href="/register">Register</a></span></div>
 	</div>
-	<div class="one-half column hidden" style="margin-top: 10px" data-page="login">
-		<form id="login-form">
-			<h4>Login form</h4>
-
-			<div class="row">
-				<label>Username</label>
-				<input class="u-full-width" name="username" type="text" placeholder="Username"/>
-			</div>
-			<div class="row">
-				<label>Password</label>
-				<input class="u-full-width" name="password" type="password" placeholder="Password"/>
-			</div>
-			<div class="row">
-				<label>
-					<input type="checkbox" class="show-password"/>
-					<span class="label-body">Show Password</span>
-				</label>
-			</div>
-			<div class="row">
-				<div class="four columns">
-					<input class="button-primary" id="btn-login" type="submit" value="Login"/>
-				</div>
-				<div class="eight columns">
-					<label>
-						<input type="checkbox" class="remember-me"/>
-						<span class="label-body">Remember me</span>
-					</label>
-				</div>
-			</div>
-		</form>
-	</div>
-	<div class="one-half column hidden" style="margin-top: 10px" data-page="register">
-		<form id="register-form">
-			<h4>Register form</h4>
-
-			<div class="row">
-				<label>Username</label>
-				<input class="u-full-width" name="username" type="text" placeholder="Username"/>
-			</div>
-			<div class="row">
-				<label>Email</label>
-				<input class="u-full-width" name="email" type="text" placeholder="Email"/>
-			</div>
-			<div class="row">
-				<label>Password</label>
-				<input class="u-full-width" name="password" type="password" placeholder="Password"/>
-			</div>
-			<div class="row">
-				<label>Confirm Password</label>
-				<input class="u-full-width" name="confirm" type="password" placeholder="Confirm Password"/>
-			</div>
-			<div class="row">
-				<label>
-					<input type="checkbox" class="show-password"/>
-					<span class="label-body">Show Password</span>
-				</label>
-			</div>
-			<div class="row">
-				<div class="four columns">
-					<input class="button-primary" id="btn-register" type="submit" value="Register"/>
-				</div>
-			</div>
-		</form>
+	<div class="one-half column" style="margin-top: 10px" id="page-content">
 	</div>
 </div>
 <!-- End Document
