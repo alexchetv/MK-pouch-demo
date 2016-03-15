@@ -48,9 +48,13 @@
 
 </head>
 <body>
+
+<script type="text/html" id="start-template">
+<div>Start</div>
+	</script>
 <!-- LoginForm template
 	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<script type="text/html" id="login-form-template">
+<script type="text/html" id="login-template">
 	<form id="login-form">
 		<h4>Login form</h4>
 
@@ -69,22 +73,14 @@
 			</label>
 		</div>
 		<div class="row">
-			<div class="four columns">
 				<input class="button-primary" id="btn-login" type="submit" value="Login"/>
-			</div>
-			<div class="eight columns">
-				<label>
-					<input type="checkbox" class="remember-me"/>
-					<span class="label-body">Remember me</span>
-				</label>
-			</div>
 		</div>
 	</form>
 </script>
 
 <!-- RegisterForm template
 	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<script type="text/html" id="register-form-template">
+<script type="text/html" id="register-template">
 	<form id="register-form">
 		<h4>Register form</h4>
 		<div class="row">
