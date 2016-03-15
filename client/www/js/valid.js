@@ -1,4 +1,4 @@
-$(document).ready(function() {
+var loginFormValidation = function() {
 	$('#login-form').formValidation({
 		framework: 'skeleton',
 		autoFocus: false,
@@ -30,11 +30,17 @@ $(document).ready(function() {
 				validators: {
 					notEmpty: {
 						message: 'The password is required'
+					},
+					stringLength: {
+						min: 6,
+						max: 20,
+						message: 'The password must be more than 6 and less than 20 characters long'
 					}
 				}
 			}
 		}
-	});
+	});}
+	var registerFormValidation = function() {
 	$('#register-form').formValidation({
 		framework: 'skeleton',
 		autoFocus: false,
@@ -63,8 +69,8 @@ $(document).ready(function() {
 					remote: {
 						validKey: 'ok',
 						message: 'The username is not available',
-						url: function(validator) {
-							return '/auth/validate-username/'+validator.getFieldElements('username').val();
+						url: function (validator) {
+							return '/auth/validate-username/' + validator.getFieldElements('username').val();
 						},
 						type: 'GET'
 					}
@@ -83,8 +89,8 @@ $(document).ready(function() {
 					remote: {
 						validKey: 'ok',
 						message: 'The email is not available',
-						url: function(validator) {
-							return '/auth/validate-email/'+validator.getFieldElements('email').val();
+						url: function (validator) {
+							return '/auth/validate-email/' + validator.getFieldElements('email').val();
 						},
 						type: 'GET'
 					}
@@ -94,6 +100,11 @@ $(document).ready(function() {
 				validators: {
 					notEmpty: {
 						message: 'The password is required'
+					},
+					stringLength: {
+						min: 6,
+						max: 20,
+						message: 'The password must be more than 6 and less than 20 characters long'
 					}
 				}
 			},
@@ -110,4 +121,4 @@ $(document).ready(function() {
 			}
 		}
 	});
-});
+}

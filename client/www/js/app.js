@@ -15,16 +15,12 @@ var LoginForm = Class({
 				console.log('login render', evt);
 				this
 					.bindNode({
-						sandbox: '#login-form',
 						userName: ":sandbox input[name='username']",
 						password: ":sandbox input[name='password']",
 						showPassword: ':sandbox .show-password',
 						rememberMe: ':sandbox .remember-me',
 						btnLogin: ':sandbox #btn-login'
 					})
-					/*.linkProps('isValid', 'userValid passValid', function (userValid, passValid) {
-					 return userValid && passValid;
-					 })*/
 					.bindNode('showPassword', ':bound(password)', {
 						getValue: null,
 						setValue: function (v) {
@@ -35,16 +31,17 @@ var LoginForm = Class({
 						evt.preventDefault();
 						this.login();
 					});
+				loginFormValidation();
 			});
 	},
-
-
 	login: function () {
-		alert(JSON.stringify(this.toJSON()));
+		$('#login-form').data('formValidation').validate();
+		if ($('#login-form').data('formValidation').isValid()){
+			alert(JSON.stringify(this.toJSON()));
+		}
 		return this;
 	}
 });
-
 
 /*****************************************************************
  * RegisterForm
@@ -63,16 +60,12 @@ var RegisterForm = Class({
 				console.log('register render', evt);
 				this
 					.bindNode({
-						sandbox: '#register-form',
 						userName: ":sandbox input[name='username']",
 						email: ":sandbox input[name='email']",
 						password: ":sandbox input[name='password']",
 						showPassword: ':sandbox .show-password',
 						btnRegister: ':sandbox #btn-register'
 					})
-					/*.linkProps('isValid', 'userValid passValid', function (userValid, passValid) {
-					 return userValid && passValid;
-					 })*/
 					.bindNode('showPassword', ":sandbox [name='password'],[name='confirm']", {
 						getValue: null,
 						setValue: function (v) {
@@ -83,10 +76,14 @@ var RegisterForm = Class({
 						evt.preventDefault();
 						this.register();
 					});
+				registerFormValidation();
 			});
 	},
 	register: function () {
-		alert(JSON.stringify(this.toJSON()));
+		$('#register-form').data('formValidation').validate();
+		if ($('#register-form').data('formValidation').isValid()){
+			alert(JSON.stringify(this.toJSON()));
+		}
 		return this;
 	}
 });
@@ -97,30 +94,24 @@ var RegisterForm = Class({
 
 var Pages = Class({
 	'extends': MK.Array,
+	itemRenderer: function () {
+		return '#' + app.pageLink + '-form-template';
+	},
 	constructor: function (data) {
 		this
 			.bindNode('sandbox', '#page-content')
 			.on('pageChange', function (evt) {
 				this.recreate();
 				if (evt.value == 'login') {
-					this.set('itemRenderer', '#login-form-template');
-					this.Model = LoginForm;
+					console.log('this.push(new LoginForm())');
+					this.push(new LoginForm());
 				}
 				else if (evt.value == 'register') {
-					this.set('itemRenderer', '#register-form-template');
-					this.Model = RegisterForm;
+					console.log('this.push(new RegisterForm())');
+					this.push(new RegisterForm());
 				}
-				this.renderIfPossible = false;
-				this.recreate([{}]);
-				this.renderIfPossible = true;
-				this.rerender({
-					forceRerender: true
-				});
 			})
 		;
-	},
-	onItemRender: function (item, evt) {
-		console.log('item render', item, evt)
 	}
 });
 
@@ -143,17 +134,15 @@ var Application = Class({
 			.bindNode('pageLink', ':sandbox .page-span', {
 				getValue: null,
 				setValue: function (v) {
-					//console.log($(this).attr('href').substr(1),v);
 					$(this).toggleClass('active', $(this).children().attr('href').substr(1) == v);
 				}
-
 			}, {assignDefaultValue: false})
-
-			.setClassFor('pages', Pages)
+			.set('pages', new Pages())
 			.on('change:pageLink', function (evt) {
+				console.log('change:pageLink', evt.value);
 				this.pages.trigger('pageChange', evt);
 			})
-			.initRouter('pageLink', 'history');
 	}
 });
 var app = new Application();
+app.initRouter('pageLink', 'history');
