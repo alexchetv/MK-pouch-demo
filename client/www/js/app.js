@@ -1,68 +1,92 @@
 /*****************************************************************
- * LoginForm
+ * pagesClasses
  */
+var pagesClasses = {
 
-var LoginForm = Class({
-	'extends': MK.Object,
-	constructor: function () {
-		this
-			.jset({
-				userName: '',
-				password: '',
-				rememberMe: true
-			})
-			.on('afterrender', function (evt) {
-				console.log('login render', evt);
-				this
-					.bindNode({
-						userName: ":sandbox input[name='username']",
-						password: ":sandbox input[name='password']",
-						showPassword: ':sandbox .show-password',
-						rememberMe: ':sandbox .remember-me',
-						btnLogin: ':sandbox #btn-login'
-					})
-					.bindNode('showPassword', ':bound(password)', {
-						getValue: null,
-						setValue: function (v) {
-							this.type = v ? 'text' : 'password';
-						}
-					})
-					.on('click::btnLogin', function (evt) {
-						evt.preventDefault();
-						this.login();
-					});
-				loginFormValidation();
-			});
-	},
-	login: function () {
-		$('#login-form').data('formValidation').validate();
-		if ($('#login-form').data('formValidation').isValid()){
-			alert(JSON.stringify(this.toJSON()));
+	/* Start*/
+
+
+	start : Class({
+		'extends': MK.Object,
+		constructor: function () {
 		}
-		return this;
-	}
-});
+	}),
 
-/*****************************************************************
- * RegisterForm
- */
+	 /* LoginForm*/
 
-var RegisterForm = Class({
+
+	login : Class({
+		'extends': MK.Object,
+		constructor: function () {
+			this
+				.jset({
+					username: '',
+					password: ''
+				})
+				.on('afterrender', function (evt) {
+					console.log('login render', evt);
+					this
+						.bindNode({
+							username: ":sandbox input[name='username']",
+							password: ":sandbox input[name='password']",
+							showPassword: ':sandbox .show-password',
+							btnLogin: ':sandbox #btn-login'
+						})
+						.bindNode('showPassword', ':bound(password)', {
+							getValue: null,
+							setValue: function (v) {
+								this.type = v ? 'text' : 'password';
+							}
+						})
+						.on('click::btnLogin', function (evt) {
+							evt.preventDefault();
+							this.send();
+						});
+					loginFormValidation();
+				});
+		},
+		send: function () {
+			$('#login-form').data('formValidation').validate();
+			if ($('#login-form').data('formValidation').isValid()) {
+				console.log(JSON.stringify(this.toJSON()));
+				$.ajax({
+					type: "POST",
+					contentType: "application/json",
+					url: '/auth/login',
+					data: JSON.stringify(this.toJSON()),
+					dataType: "json"
+				})
+					.done(function (data) {
+						app.session = data;
+						app.pageLink='start';
+						console.log(app.session);
+					});
+			}
+			return this;
+		}
+	}),
+
+
+ /* RegisterForm */
+
+register : Class({
 	'extends': MK.Object,
 	constructor: function () {
 		this
 			.jset({
-				userName: '',
+				username: '',
 				password: '',
+				confirmPassword: '',
 				email: ''
 			})
 			.on('afterrender', function (evt) {
 				console.log('register render', evt);
 				this
 					.bindNode({
-						userName: ":sandbox input[name='username']",
+						username: ":sandbox input[name='username']",
 						email: ":sandbox input[name='email']",
 						password: ":sandbox input[name='password']",
+						confirmPassword: ":sandbox input[name='confirm']",
 						showPassword: ':sandbox .show-password',
 						btnRegister: ':sandbox #btn-register'
 					})
@@ -74,43 +98,51 @@ var RegisterForm = Class({
 					})
 					.on('click::btnRegister', function (evt) {
 						evt.preventDefault();
-						this.register();
+						this.send();
 					});
 				registerFormValidation();
 			});
 	},
-	register: function () {
+	send: function () {
 		$('#register-form').data('formValidation').validate();
-		if ($('#register-form').data('formValidation').isValid()){
-			alert(JSON.stringify(this.toJSON()));
+		if ($('#register-form').data('formValidation').isValid()) {
+			console.log(JSON.stringify(this.toJSON()));
+			$.ajax({
+				type: "POST",
+				contentType: "application/json",
+				url: '/auth/register',
+				data: JSON.stringify(this.toJSON()),
+				dataType: "json"
+			})
+				.done(function (data) {
+					app.pageLink='start';
+				});
 		}
 		return this;
 	}
-});
+})
 
+}
 /*****************************************************************
- * Pages
+ * Page
  */
 
-var Pages = Class({
+var Page = Class({
 	'extends': MK.Array,
 	itemRenderer: function () {
-		return '#' + app.pageLink + '-form-template';
+		return '#' + app.pageLink + '-template';
 	},
 	constructor: function (data) {
 		this
 			.bindNode('sandbox', '#page-content')
-			.on('pageChange', function (evt) {
+			.onDebounce('pageChange', function (newPage) {
 				this.recreate();
-				if (evt.value == 'login') {
-					console.log('this.push(new LoginForm())');
-					this.push(new LoginForm());
+				if (pagesClasses.hasOwnProperty(newPage)) {
+					this.push(new pagesClasses[newPage]);
+				} else {
+					app.pageLink = 'start';
 				}
-				else if (evt.value == 'register') {
-					console.log('this.push(new RegisterForm())');
-					this.push(new RegisterForm());
-				}
-			})
+			},100)
 		;
 	}
 });
@@ -137,10 +169,10 @@ var Application = Class({
 					$(this).toggleClass('active', $(this).children().attr('href').substr(1) == v);
 				}
 			}, {assignDefaultValue: false})
-			.set('pages', new Pages())
+			.set('page', new Page())
 			.on('change:pageLink', function (evt) {
 				console.log('change:pageLink', evt.value);
-				this.pages.trigger('pageChange', evt);
+				this.page.trigger('pageChange', evt.value);
 			})
 	}
 });
