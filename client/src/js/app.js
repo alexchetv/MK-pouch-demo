@@ -70,7 +70,7 @@ var Application = Class({
 				this.page.current = 'start';
 			})
 			.on('session@logoutEvent',
-			()=> {
+			(reason)=> {//explain why the user was logged out (e.g. 'manual', 'expired')
 				console.log('session@logoutEvent', this.session);
 				this.session.each((value, key) => {
 					this.session[key] = '';

@@ -7,7 +7,7 @@ var Session = Class({
 				localStorage.setItem('session', JSON.stringify(this));
 			},100)
 			.bindNode('btnLogout', '#logout')
-			.on('click::btnLogout',()=>{this.trigger('logoutEvent')});
+			.on('click::btnLogout',()=>{this.trigger('logoutEvent','manual')});
 		this.parseBindings($('#session'));
 	},
 	refresh: function() {
@@ -28,7 +28,7 @@ var Session = Class({
 				})
 				.fail(function (answer) {
 					console.log('fail', answer);
-					if (answer.status==401) me.trigger('logoutEvent')
+					if (answer.status==401) me.trigger('logoutEvent','expired')
 				})
 				/*.always(function() {
 				 alert( "complete" );
