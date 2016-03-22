@@ -5,7 +5,8 @@ module.exports = {
     debugEmail: !process.env.SENDGRID_USERNAME
   },
   security: {
-    maxFailedLogins: 3
+    maxFailedLogins: 3,
+	  sessionLife: 10,
   },
   local: {
     sendConfirmEmail: true,

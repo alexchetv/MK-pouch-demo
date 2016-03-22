@@ -50,8 +50,11 @@
 <body>
 
 <script type="text/html" id="start-template">
-<div>Start</div>
-	</script>
+	<div>Start</div>
+</script>
+<script type="text/html" id="profile-template">
+	<div>Profile</div>
+</script>
 <!-- LoginForm template
 	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <script type="text/html" id="login-template">
@@ -73,7 +76,7 @@
 			</label>
 		</div>
 		<div class="row">
-				<input class="button-primary" id="btn-login" type="submit" value="Login"/>
+			<input class="button-primary" id="btn-login" type="submit" value="Login"/>
 		</div>
 	</form>
 </script>
@@ -83,6 +86,7 @@
 <script type="text/html" id="register-template">
 	<form id="register-form">
 		<h4>Register form</h4>
+
 		<div class="row">
 			<label>Username</label>
 			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
@@ -117,8 +121,20 @@
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <div class="container">
 	<div class="row" id="app">
-		<div class="u-pull-right"><span class="page-span"><a class="page-link" href="/login">Login</a></span> or <span
-				class="page-span"><a class="page-link" href="/register">Register</a></span></div>
+		<div id="session" class="absolute-right logged-in">
+			<a data-popover="#user-popover" href="#" class="u-pull-right" onclick="return false">{{user_id}}</a>
+			<ul id="user-popover" class="popover">
+				<li><a href="#" id="logout" onclick="return false">Log out</a></li>
+				<li class="page-wrap"><a class="page-link" href="/profile" onclick="return false">Profile</a></li>
+			</ul>
+		</div>
+		<div class="absolute-right not-logged-in">
+			<div class="page-wrap"><a class="page-link" href="/login" onclick="return false">Login</a>
+			</div>
+			<div
+					class="page-wrap"> or <a class="page-link" href="/register" onclick="return false">Register</a>
+			</div>
+		</div>
 	</div>
 	<div class="one-half column" style="margin-top: 10px" id="page-content">
 	</div>
@@ -126,6 +142,5 @@
 <!-- End Document
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
-<script src="/js/valid.js"></script>
-<script src="/js/app.js"></script>
+<script src="/js/bundle.js"></script>
 </html>

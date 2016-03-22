@@ -1,9 +1,22 @@
-.page-span.active a {
+.active, .active:hover, .active a {
     text-decoration: none;
     color: inherit;
 }
 
-div.hidden {
+.hidden {
     visibility: collapse;
     display: none;
+}
+
+.absolute-right {
+    position: absolute;
+    right: 0;
+}
+
+.popover.open {
+    display: block;
+}
+.popover {
+    display: none;
+    list-style: none;
 }
