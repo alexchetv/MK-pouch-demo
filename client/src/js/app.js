@@ -36,6 +36,19 @@ var Application = Class({
 
 	constructor: function () {
 		this
+			//.jset('online', Offline.state == 'up')
+			.linkProps('online', [
+					Offline, 'state'
+			], function(a) {
+				return a == 'up';
+			})
+			.bindNode('online', '#indicator', {
+				getValue: null,
+				setValue: function (v) {
+					$(this).toggleClass('fa-refresh', v);
+					$(this).toggleClass('fa-minus-circle', !v);
+				}
+			})
 			.setClassFor('session', Session)
 			.set('page', new Page())
 			.bindNode('sandbox', '#app')
@@ -76,12 +89,23 @@ var Application = Class({
 					this.session[key] = '';
 				})
 				this.page.current = 'login';
-			});
+			})
+		.parseBindings();
 		//recreate session from the one previously saved in localStorage
 		this.session = JSON.parse(localStorage.getItem('session'));
 		//then refresh it
 		this.session.refresh();
+		/*Offline.on('up', () => {
+			this.online = true;
+			console.log('online',this.online);
+		}, this);
+		Offline.on('down', () => {
+			this.online = false;
+			console.log('offline',this.online);
+		}, this);*/
 	}
 });
+Offline.options = {requests: false};
+Offline.check();
 var app = new Application();
 init();

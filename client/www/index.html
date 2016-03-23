@@ -33,11 +33,15 @@
 	<link rel="stylesheet" href="/css/custom.css">
 	<!-- JS
 		–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<script src="/lib/offline/offline.min.js"></script>
 	<script src="/lib/jquery/dist/jquery.min.js"></script>
 
 	<!-- FormValidation plugin and the class supports validating Skeleton form -->
 	<script src="/lib/Formvalidation/fv.min.js"></script>
 	<script src="/lib/Formvalidation/skeleton.js"></script>
+
+	<script src="/lib/pouchdb/pouchdb-5.3.1.min.js"></script>
+	<script src="/lib/pouchdb/pouchdb.memory.min.js"></script>
 
 	<script src="/lib/Matreshka/matreshka.min.js"></script>
 	<script src="/lib/matreshka-router/matreshka-router.js"></script>
@@ -119,16 +123,17 @@
 
 <!-- Primary Page Layout
 –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<div class="container">
-	<div class="row" id="app">
-		<div id="session" class="absolute-right logged-in">
+<div class="container" id="app">
+	<div class="row" id="top-bar">
+		<i class="fa fa-refresh fa-lg u-pull-left" id="indicator"></i>
+		<div id="session" class="u-pull-right logged-in">
 			<a data-popover="#user-popover" href="#" class="u-pull-right" onclick="return false">{{user_id}}</a>
 			<ul id="user-popover" class="popover">
 				<li><a href="#" id="logout" onclick="return false">Log out</a></li>
 				<li class="page-wrap"><a class="page-link" href="/profile" onclick="return false">Profile</a></li>
 			</ul>
 		</div>
-		<div class="absolute-right not-logged-in">
+		<div class="u-pull-right not-logged-in">
 			<div class="page-wrap"><a class="page-link" href="/login" onclick="return false">Login</a>
 			</div>
 			<div

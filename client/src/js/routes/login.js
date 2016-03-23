@@ -42,7 +42,11 @@ var login = Class({
 			})
 				.done((data) =>
 				{this.trigger('loginEvent', data);
-				});
+				})
+		/*.fail(function (answer) {
+				console.log('login fail', answer);
+				//if (answer.status==401) me.trigger('logoutEvent','expired')
+			})*/;
 		}
 		return this;
 	}
