@@ -1,11 +1,11 @@
 var loginFormValidation = require('../validation/login-form');
 var login = Class({
 	'extends': MK.Object,
-	constructor: function () {
+	constructor: function (attach) {
 		this
 			.jset({
-				username: '',
-				password: ''
+				username: attach && attach.name ? attach.name : '',
+				password: attach && attach.pass ? attach.pass : ''
 			})
 			.on('afterrender', function (evt) {
 				console.log('login render', evt);

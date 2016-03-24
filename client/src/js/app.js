@@ -15,10 +15,10 @@ var Page = Class({
 		this
 			.bindNode('sandbox', '#page-content')
 			.onDebounce('change:current', function (evt) {
-				console.log('change:page.current', evt.value);
+				console.log('change:page.current', evt.value,evt.attach);
 				this.recreate();
 				if (routes.hasOwnProperty(evt.value)) {
-					this.push(new routes[evt.value]);
+					this.push(new routes[evt.value](evt.attach));
 				} else {
 					this.current = 'start';
 				}
@@ -81,6 +81,10 @@ var Application = Class({
 				//set session properties
 				this.session = data;
 				this.page.current = 'start';
+			})
+			.on('page.*@registerEvent', (data)=> {
+				console.log('registerEvent', data);
+				this.page.set('current','login',{attach:data});
 			})
 			.on('session@logoutEvent',
 			(reason)=> {//explain why the user was logged out (e.g. 'manual', 'expired')

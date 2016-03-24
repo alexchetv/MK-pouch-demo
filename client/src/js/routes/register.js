@@ -44,9 +44,10 @@ var register = Class({
 				data: JSON.stringify(this.toJSON()),
 				dataType: "json"
 			})
-				.done(function (data) {
-
-				});
+				.done((data) =>
+				{this.trigger('registerEvent', {name:this.username,pass:this.password});
+					console.log('trigger registerEvent',data);
+				})
 		}
 		return this;
 	}
