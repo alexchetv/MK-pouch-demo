@@ -14,13 +14,32 @@
 }
 
 #top-bar {
-    border-bottom: solid 1px;
+    border-bottom: solid 1px #D1D1D1;
     height: 45px;
     line-height: 45px;
 
 }
-#top-bar i {
-    margin-top: 15px;
+#indicator {
+    position: absolute;
+    left: -2px;
+    top: 31px;
+}
+
+#indicator i:first-child {
+    color:white;
+}
+
+.fa-refresh {
+    color: green;
+}
+
+.fa-minus-circle {
+    color: red;
+}
+
+.fa-circle-thin
+{
+    color: #222;
 }
 
 #top-bar * {
@@ -40,10 +59,107 @@
     white-space: nowrap;
 }
 
-.fa-refresh {
+#todo-list {
+    list-style: none;
+}
+
+#todo-list li {
+    position: relative;
+    border-bottom: 1px solid #ededed;
+}
+
+#todo-list li:last-child {
+    border-bottom: none;
+}
+
+#todo-list li label {
+    white-space: pre-line;
+    word-break: break-all;
+    padding: 15px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 0;
+    display: block;
+    line-height: 1.2;
+    transition: color 0.4s;
+}
+
+#todo-list li.complete label{
+    text-decoration: line-through;
+    color: #D1D1D1
+}
+
+#todo-list li .edit {
+    display: none;
+    margin-bottom: 15px;
+    margin-top: 15px;
+}
+
+#todo-list li.editing .edit {
+    display: inline-block;
+}
+
+#todo-list li.editing .view {
+    display: none;
+}
+
+#todo-list li .toggle {
+    text-align: center;
+    width: 40px;
+    height: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+}
+
+#todo-list li .destroy,.done {
+    outline: none;
+    border: none;
+    position: absolute;
+    top: 0;
+    bottom: 0px;
+    width: 15px;
+    height: auto;
+    margin: auto 0;
+    padding:0;
+    font-size: 15px;
+    color: #D1D1D1;
+    transition: color 0.2s ease-out;
+}
+
+#todo-list li .destroy {
+    display: none;
+    right: 0;
+ }
+
+#todo-list li .done:hover,.done:focus {
+    color: #D1D1D1;
+}
+
+#todo-list li .done {
+    left: 0;
+}
+
+#todo-list li .done:after {
+    font-family: FontAwesome;
+    content: "\f00c";
+}
+#todo-list li .destroy:after {
+    font-family: FontAwesome;
+    content: "\f00d";
+}
+
+#todo-list li.complete .done {
     color: green;
 }
 
-.fa-minus-circle {
+#todo-list li .destroy:hover {
     color: red;
+}
+
+
+
+#todo-list li:hover .destroy {
+    display: block;
 }

@@ -44,35 +44,33 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var routes = __webpack_require__(1);
-	var Session = __webpack_require__(8);
-	var init = __webpack_require__(9);
+	"use strict";
+	var Routes = __webpack_require__(1);
+	var Session = __webpack_require__(11);
+	var PouchMirror = __webpack_require__(4);
+	var init = __webpack_require__(12);
+
 
 	/*****************************************************************
-	 * Page
-	 */
+	 * Store
 
-	var Page = Class({
+
+	 var Store = Class({
 		'extends': MK.Array,
-		itemRenderer: function () {
-			return '#' + this.current + '-template';
-		},
+		Model: PouchMirror,
 		constructor: function (data) {
-			this
-				.bindNode('sandbox', '#page-content')
-				.onDebounce('change:current', function (evt) {
-					console.log('change:page.current', evt.value);
-					this.recreate();
-					if (routes.hasOwnProperty(evt.value)) {
-						this.push(new routes[evt.value]);
-					} else {
-						this.current = 'start';
-					}
-				}, 100);
-			this.initRouter('current', 'history');
+			"use strict";
+
+		this.reload: function (DBs) {
+			console.log('reload');
+			this.recreate();
+			for (var db in DBs) {
+				console.log("DBs." + db + " = " + DBs[db]);
+				this.push({remote: DBs[db], local: db});
+			}
 		}
 	});
-
+	*/
 	/*****************************************************************
 	 * Application
 	 */
@@ -82,16 +80,18 @@
 
 		constructor: function () {
 			this
+				//.jset('online', Offline.state == 'up')
 				.setClassFor('session', Session)
-				.set('page', new Page())
+				.set('routes', new Routes(this.session))
+				//.set('store', new Store())
 				.bindNode('sandbox', '#app')
-				.bindNode('page.current', ':sandbox .page-link', {
+				.bindNode('routes.current', ':sandbox .page-link', {
 					on: 'click',
 					getValue: function () {
 						return $(this).attr('href').substr(1);
 					}
 				}, {assignDefaultValue: false})
-				.bindNode('page.current', ':sandbox .page-wrap', {
+				.bindNode('routes.current', ':sandbox .page-wrap', {
 					getValue: null,
 					setValue: function (v) {
 						$(this).toggleClass('active', $(this).children().attr('href').substr(1) == v);
@@ -109,26 +109,75 @@
 						$(this).toggleClass('hidden', !v);
 					}
 				})
-				.on('page.*@loginEvent', (data)=> {
+				.linkProps('online', [
+					Offline, 'state'
+				], function (a) {
+					return a == 'up';
+				})
+				.bindNode('online', '#indicator i:last-child', {
+					getValue: null,
+					setValue: function (v) {
+						$(this).toggleClass('fa-refresh', v);
+						$(this).toggleClass('fa-minus-circle', !v);
+					}
+				})
+	/*
+				.on('store.*@dbReady', (data, db) => {
+					console.log('dbReady', data, db);
+					db.allDocs({
+						include_docs: true,
+						attachments: true,
+						startkey: 'todo',
+						endkey: 'todo\uffff'
+					}).then((data)=> {
+						console.log('db.find', data);
+					})
+				})*/
+				.on('session@userEvent', (uid) => {
+					console.log('userEvent', uid)
+					this.routes.set('loggedIn', !!uid);
+				})
+				.on('routes.*@loginEvent', (data)=> {
 					console.log('loginEvent', data);
 					//set session properties
 					this.session = data;
-					this.page.current = 'start';
+					//this.store.reload(data.userDBs);
+					this.routes.current = 'todos';
+				})
+				.on('routes.*@registerEvent', (data)=> {
+					console.log('registerEvent', data);
+					//Pass credentials of new user to login form
+					this.routes.set('current', 'login', {attach: data});
 				})
 				.on('session@logoutEvent',
-				()=> {
+				(reason)=> {//explain why the user was logged out (e.g. 'manual', 'expired')
 					console.log('session@logoutEvent', this.session);
 					this.session.each((value, key) => {
 						this.session[key] = '';
 					})
-					this.page.current = 'login';
-				});
+					this.routes.current = 'login';
+				})
+				.on('routes.*@wantPage', (data)=> {
+					console.log('wantPage', data);
+					this.routes.current = data.substr(1);
+				})
+				.parseBindings();
 			//recreate session from the one previously saved in localStorage
 			this.session = JSON.parse(localStorage.getItem('session'));
 			//then refresh it
 			this.session.refresh();
+			/*Offline.on('up', () => {
+			 this.online = true;
+			 console.log('online',this.online);
+			 }, this);
+			 Offline.on('down', () => {
+			 this.online = false;
+			 console.log('offline',this.online);
+			 }, this);*/
 		}
 	});
+	Offline.options = {requests: false};
+	Offline.check();
 	var app = new Application();
 	init();
 
@@ -136,46 +185,592 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var start = __webpack_require__(2);
-	var profile = __webpack_require__(3);
-	var login = __webpack_require__(4);
-	var register = __webpack_require__(6);
+	var Todos = __webpack_require__(2);
+	var profile = __webpack_require__(5);
+	var login = __webpack_require__(6);
+	var register = __webpack_require__(8);
+	var lost = __webpack_require__(10);
 
-	var routes = {
-
-		/* Start*/
-
-		start : start,
-
+	var routesList = {
+		/* Todos*/
+		todos : {
+			creator: Todos,
+			restricted: true
+		},
 		/* Profile*/
-
-		profile : profile,
-
+		profile : {
+			creator: profile,
+			restricted: true
+		},
 		/* LoginForm*/
-
-		login : login,
-
+		login : {
+			creator: login,
+			restricted: false
+		},
 		/* RegisterForm */
-
-		register : register
+		register : {
+			creator: register,
+			restricted: false
+		},
+		/* Page Not Found*/
+		lost : {
+			creator: lost,
+			restricted: false
+		},
 	}
 
-	module.exports = routes;
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	var start = Class({
-		'extends': MK.Object,
-		constructor: function () {
+	var Routes = Class({
+		'extends': MK.Array,
+		itemRenderer: function () {
+			console.log('itemRenderer',this.current);
+			return '#' + this.current + '-template';
+		},
+		constructor: function (session) {
+			this
+				.set('loggedIn',false)
+				.bindNode('sandbox', '#page-content')
+				.onDebounce('change:current', function (evt) {
+					console.log('change:routes.current', this.loggedIn, evt.value,evt.attach);
+					this.recreate();
+					if (evt.value) {
+						if (routesList.hasOwnProperty(evt.value)) {
+							if (!this.loggedIn && routesList[evt.value].restricted) {
+								this.current = 'login';
+							} else {
+								this.push(new routesList[evt.value].creator(session,evt.attach));//передаем сессию и аттачмент
+							}
+						} else {
+							this.current = 'lost';
+						}
+					} else {
+						this.current = 'todos';
+					}
+				}, 100);
+			this.initRouter('current', 'history');
 		}
 	});
 
-	module.exports = start;
+	module.exports = Routes;
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var Todo = __webpack_require__(3);
+	var PouchMirror = __webpack_require__(4);
+
+	var Todos = Class({
+		'extends': MK.Array,
+		Model: Todo,
+		itemRenderer: '#todo-item-template',
+		constructor: function (session) {
+			this.set('DBs', session.userDBs);
+			if (this.DBs.todos) {
+				this.set('dataSource', new PouchMirror(
+					{
+						local: 'todos',
+						remote: this.DBs.todos,
+						type: 'todo',
+						remoteOptions: {
+							auto_compaction: true
+						}
+					}
+				));
+			} else {
+				session.trigger('logoutEvent', 'No Database');
+			}
+			this.on('dataSource@dbReady', (data) => {
+				console.log('dataSource@dbReady', data);
+				this.recreate(data);
+			});
+			this.on('dataSource@dbUpdate', (docs) => {
+				console.log('dataSource@dbUpdate', docs);
+				for (let index = this.length - 1; index >= 0; index--) {
+					let todo = this[index];
+					console.log('each', todo);
+					for (let i = docs.length - 1; i >= 0; i--) {
+						console.log ('doc',docs[i])
+						if (docs[i]._id === todo._id) {
+							if (docs[i]._deleted) {
+								this.pull(index);
+							} else {
+								todo._rev = docs[i]._rev;
+								todo.title = docs[i].title;
+								todo.complete = docs[i].complete;
+							}
+							docs.splice(i, 1);
+						}
+					}
+				}
+				docs.forEach((doc) => {
+						this.push(new Todo(doc,this));
+				})
+			});
+			this
+				.on('afterrender', function (evt) {
+					console.log('todos render', evt);
+					this
+						.bindNode('container', '#todo-list')
+						.bindNode('newTodo', ':sandbox .new-todo')
+				})
+				.on('*@editEvent',function(item) {
+					console.log('editEvent',item);
+					this.editingTodo = item;
+				})
+				.on('change:editingTodo',function(evt) {
+					console.log('change',evt);
+					if (evt.previousValue) evt.previousValue.editing=false;
+					if (evt.value) evt.value.editing=true;
+				})
+				.on('focus::newTodo', function(evt) {
+					this.editingTodo = null;
+				})
+				.on('keyup::newTodo', function(evt) {
+					var newValue;
+					if (evt.which === 27) {
+						this.newTodo = '';
+					} else if (evt.which === 13) {
+						if (newValue = this.newTodo.trim()) {
+							this.dataSource.put({
+								title: newValue,
+								complete:false
+							},'todo').then(function (response) {
+								console.log('response',response);
+							}).catch(function (err) {
+								console.log('err',err);
+							});
+							this.newTodo = '';
+						}
+					}
+				});
+		}
+	});
+
+	module.exports = Todos;
 
 /***/ },
 /* 3 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var Todo = Class({
+		'extends': MK.Object,
+		constructor: function (data, parent) {
+			this
+				.jset({
+					_id:data._id,
+					title: data.title || '',
+					complete: data.complete || false,
+					_rev:data._rev
+				})
+				.on('render', function (evt) {
+					console.log('todo render', evt);
+					this
+						.bindNode('title', ':sandbox label', MK.binders.html())
+						//.bindNode('complete', ':sandbox .toggle')
+						.bindNode('complete', ':sandbox', MK.binders.className('complete'))
+						.bindNode('editing', ':sandbox', MK.binders.className('editing'))
+						.bindNode('edit',':sandbox .edit')
+						.bindNode('destroy', ':sandbox .destroy')
+						.bindNode('done', ':sandbox .done')
+				})
+				.on('dblclick::title', () =>{
+					this.trigger('editEvent',this);
+				})
+				.on('change:editing',(evt) => {
+					if (evt.value) {
+						this.edit = this.title;
+						this.$bound('edit').focus();
+					}
+				})
+				.on('keyup::edit', function(evt) {
+					var editValue;
+					if (evt.which === 27) {
+						this.editing = false;
+					} else if (evt.which === 13) {
+						if (editValue = this.edit.trim()) {
+							//this.title = editValue;
+							parent.dataSource.put({
+								title: editValue,
+								complete:this.complete,
+								_id:this._id,
+								_rev:this._rev
+							}).then((response) => {
+								console.log('response',response);
+								this.edit = '';
+								this.editing = false;
+							}).catch( (err) => {
+								console.log('err',err);
+							});
+						} else {
+							parent.dataSource.pull(JSON.stringify(this));
+						}
+					}
+				})
+				.on('click::destroy', function() {
+					console.log('click::destroy');
+					parent.dataSource.pull(JSON.stringify(this));
+				})
+				.on('click::done', function() {
+					console.log('click::done');
+					parent.dataSource.put({
+						title: this.title,
+						complete:!this.complete,
+						_id:this._id,
+						_rev:this._rev
+					}).then((response) => {
+						console.log('response',response);
+					}).catch( (err) => {
+						console.log('err',err);
+					});
+				});
+		}
+	});
+	module.exports = Todo;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	'use strict';
+	var PouchMirror = Class({
+		'extends': MK.Object,
+
+		//constructor: function (remoteUrl, localDbName = 'pouch', remoteOptions = {}) {
+		constructor: function (data) {
+			this
+				.linkProps('online', [
+					Offline, 'state'
+				], function (a) {
+					return a == 'up';
+				})
+				.set('db', new PouchDB(data.local + '_mem', {adapter: 'memory',auto_compaction:true}))
+				.set('diskDb', new PouchDB(data.local, {auto_compaction:true}))
+				.set('type', data.type)
+				//.set('local', !data.remote)//local only db -- no need to sync with server
+				.set('syncing', false) //
+				.set('stopped', true)
+				.set('status', 'stopped')
+				.set('active', false)//true when the db is actively sending or receiving changes, otherwise false
+				.set('ready', false)//true when the initial sync has completed, otherwise false
+			if (data.remote) this.set('remoteDb', new PouchDB(data.remote, data.remoteOptions));
+			// First copy the diskDb to memory, and then sync changes in memory to diskDb
+			this.diskDb.replicate.to(this.db).then(() => {
+				this.db.replicate.to(this.diskDb, {live: true});
+				this.db.allDocs({
+					include_docs: true,
+					attachments: true,
+					startkey: this.type,
+					endkey: this.type + '\uffff'
+				}).then((data)=> {
+					this.trigger('dbReady', data.rows.map((item)=> {
+						return item.doc
+					}));
+				})
+				this.startSync();
+			});
+		},//constructor end
+
+		startSync: function () {
+			if (!this.remoteDb || !this.online) return;
+			console.log('START REPLICATION');
+			this.sync = PouchDB.sync(this.db, this.remoteDb, {live: true, retry: true})
+				.on('change', this.onChange.bind(this))
+				.on('paused', this.onPaused.bind(this))
+				.on('active', this.onActive.bind(this))
+				.on('denied', this.onDenied.bind(this))
+				.on('complete', this.onComplete.bind(this))
+				.on('error', this.onError.bind(this));
+		},
+		stopSync: function () {
+			console.log('STOP REPLICATION');
+			this.sync.cancel();
+		},
+		onChange: function (info) {
+			console.log('onChange', info.change.docs);
+			var self = this;
+			var filteredDocs = info.change.docs.filter((e)=> {
+				return ((e._id > this.type) && (e._id < this.type+ '\uffff'));
+			});
+			console.log('filteredDocs', filteredDocs);
+			if (filteredDocs.length > 0) this.trigger('dbUpdate', filteredDocs);
+		},
+		onError: function (err) {
+			console.log('onError');
+			this.trigger('ReplicationError', {"err": err});
+		},
+		onPaused: function () {
+			console.log('onPaused');
+			this.trigger('ReplicationPaused');
+		},
+		onActive: function () {
+			console.log('onActive');
+			this.trigger('ReplicationActive');
+		},
+		onDenied: function (err) {
+			console.log('onDenied');
+			this.trigger('ReplicationDenied', {"err": err});
+		},
+		onComplete: function (info) {
+			console.log('onComplete');
+			this.trigger('ReplicationComplete', {"info": info});
+		},
+
+		put: function(data,type) {
+			if (!data._id) data._id = this.timeStampId(type);
+			return this.db.put(data);
+		},
+
+		pull: function(data) {
+			console.log ('pull',data);
+			return this.db.remove(JSON.parse(data));
+
+		},
+
+		timeStampId:function(docType) {
+			if (!docType) {
+				throw new SyntaxError("Need document type to create document ID");
+			}
+			var timestamp = Date.now();
+			return docType + ':' + new Date(timestamp).toISOString() + ':' + this.base64Bytes(4);
+		},
+		base64Bytes:function (length) {
+			var URLSafeBase64 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+			var result = '';
+			for(var i=0; i<length; i++) {
+				var rand = Math.floor(Math.random() * 64);
+				result += URLSafeBase64.charAt(rand);
+			}
+			return result;
+		}
+	});
+
+	/*
+	 this.stopped = false;
+	 if (this.online && !this.syncing) {
+	 this.remoteSync = PouchDB.sync(this.remoteDb, this.db, {live: true, retry: true})
+	 .on('active', () => {
+	 this.active = true;
+	 //$rootScope.$broadcast('pm:update', localDbName, 'active', getStatus());
+	 })
+	 .on('paused', () => {
+	 this.active = false;
+	 if (!this.ready) {
+	 console.log('db',this.db);
+	 this.ready = true;
+	 //$rootScope.$broadcast('pm:update', localDbName, 'ready', getStatus());
+	 }
+	 //$rootScope.$broadcast('pm:update', localDbName, 'paused', getStatus());
+
+	 })
+	 .on('complete', (info) => {
+	 // This means the sync was cancelled
+	 this.active = false;
+	 this.syncing = false;
+	 // These should show up under the 'error' handler but PouchDB is firing 'complete' instead
+	 if (checkUnauthorized(info)) {
+	 this.status = 'error';
+	 //$rootScope.$broadcast('pm:error', localDbName, {error: 'unauthorized'}, getStatus(), info);
+	 } else {
+	 this.status = 'stopped';
+	 //$rootScope.$broadcast('pm:update', localDbName, 'stopped', getStatus(), info);
+	 }
+	 })
+	 .on('denied', (err) => {
+	 // Access denied
+	 //$rootScope.$broadcast('pm:denied', localDbName, err, getStatus());
+	 })
+	 .on('error', (err) => {
+	 this.active = false;
+	 this.status = 'error';
+	 //$rootScope.$broadcast('pm:error', localDbName, err, getStatus());
+	 });
+	 this.syncing = true;
+	 this.status = 'syncing';
+	 } else {
+	 if (!this.online) {
+	 this.status = 'offline';
+	 }
+	 if (!this.ready) {
+	 this.ready = true;
+	 //$rootScope.$broadcast('pm:update', localDbName, 'ready', getStatus());
+	 }
+	 }
+	 }
+
+	 */
+
+	module.exports = PouchMirror;
+
+	/*function tttt(angular, PouchDB) {
+		'use strict';
+		/* global angular, PouchDB */
+		/* jshint -W097
+
+		angular.module('pouchMirror', [])
+
+			.run(["$window", "$rootScope", function ($window, $rootScope) {
+				$rootScope.online = $window.navigator.onLine;
+				$window.addEventListener("offline", function () {
+					$rootScope.online = false;
+					$rootScope.$broadcast('offline');
+				});
+				$window.addEventListener("online", function () {
+					$rootScope.online = true;
+					$rootScope.$broadcast('online');
+				});
+			}])
+
+			.factory('PouchMirror', ["$rootScope", "$q", function ($rootScope, $q) {
+				return function (localDbName, remoteUrl, remoteOptions) {
+					var memoryDb, diskDb, remoteDb, remoteSync;
+					var syncing = false;
+					var stopped = true;
+					var status = 'stopped';
+					var active = false, ready = false;
+					remoteOptions = remoteOptions || {};
+					if (!localDbName) {
+						localDbName = 'pouch';
+					}
+
+					memoryDb = new PouchDB(localDbName + '_mem', {adapter: 'memory'});
+					diskDb = new PouchDB(localDbName);
+					diskDb.replicate.to(memoryDb).then(function () {
+						memoryDb.replicate.to(diskDb, {live: true});
+						startSync();
+					});
+
+					$rootScope.$on('online', function () {
+						if (!stopped) {
+							startSync();
+						}
+					});
+					$rootScope.$on('offline', function () {
+						if (!stopped) {
+							status = 'offline';
+						}
+						pauseSync();
+					});
+
+					memoryDb.startSync = startSync;
+					memoryDb.stopSync = stopSync;
+					memoryDb.syncStatus = getStatus;
+					memoryDb.destroyLocal = destroyLocal;
+
+					return memoryDb;
+
+					function getStatus() {
+						return {
+							status: status,
+							active: active,
+							ready: ready
+						};
+					}
+
+					function startSync() {
+						stopped = false;
+						if (remoteUrl && $rootScope.online && !syncing) {
+							if (!remoteDb) {
+								remoteDb = new PouchDB(remoteUrl, remoteOptions);
+							}
+							remoteSync = PouchDB.sync(remoteDb, memoryDb, {live: true, retry: true})
+								.on('active', function () {
+									active = true;
+									$rootScope.$broadcast('pm:update', localDbName, 'active', getStatus());
+								})
+								.on('paused', function () {
+									active = false;
+									if (!ready) {
+										ready = true;
+										$rootScope.$broadcast('pm:update', localDbName, 'ready', getStatus());
+									}
+									$rootScope.$broadcast('pm:update', localDbName, 'paused', getStatus());
+
+								})
+								.on('complete', function (info) {
+									// This means the sync was cancelled
+									active = false;
+									syncing = false;
+									// These should show up under the 'error' handler but PouchDB is firing 'complete' instead
+									if (checkUnauthorized(info)) {
+										status = 'error';
+										$rootScope.$broadcast('pm:error', localDbName, {error: 'unauthorized'}, getStatus(), info);
+									} else {
+										status = 'stopped';
+										$rootScope.$broadcast('pm:update', localDbName, 'stopped', getStatus(), info);
+									}
+								})
+								.on('denied', function (err) {
+									// Access denied
+									$rootScope.$broadcast('pm:denied', localDbName, err, getStatus());
+								})
+								.on('error', function (err) {
+									active = false;
+									status = 'error';
+									$rootScope.$broadcast('pm:error', localDbName, err, getStatus());
+								});
+							syncing = true;
+							status = 'syncing';
+						} else {
+							if (!$rootScope.online) {
+								status = 'offline';
+							}
+							if (!ready) {
+								ready = true;
+								$rootScope.$broadcast('pm:update', localDbName, 'ready', getStatus());
+							}
+						}
+					}
+
+					// Called when an offline status is detected
+					function pauseSync() {
+						if (syncing) {
+							remoteSync.cancel();
+							syncing = false;
+						}
+					}
+
+					// Manually stop the sync regardless of offline status
+					function stopSync() {
+						stopped = true;
+						status = 'stopped';
+						ready = 'false';
+						pauseSync();
+					}
+
+					// Destroys both the Disk and Memory databases
+					function destroyLocal() {
+						stopSync();
+						return $q.all([diskDb.destroy(), memoryDb.destroy()]);
+					}
+
+					function checkUnauthorized(info) {
+						var unauthorized = false;
+						if (info.push && info.push.errors) {
+							info.push.errors.forEach(function (err) {
+								if (err.name === 'unauthorized' || err.name === 'forbidden') {
+									unauthorized = true;
+								}
+							});
+						}
+						if (info.pull && info.pull.errors) {
+							info.pull.errors.forEach(function (err) {
+								if (err.name === 'unauthorized' || err.name === 'forbidden') {
+									unauthorized = true;
+								}
+							});
+						}
+						return unauthorized;
+					}
+
+				};
+			}]);
+	}*/
+
+
+/***/ },
+/* 5 */
 /***/ function(module, exports) {
 
 	var profile = Class({
@@ -187,17 +782,17 @@
 	module.exports = profile;
 
 /***/ },
-/* 4 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var loginFormValidation = __webpack_require__(5);
+	var loginFormValidation = __webpack_require__(7);
 	var login = Class({
 		'extends': MK.Object,
-		constructor: function () {
+		constructor: function (session,attach) {
 			this
 				.jset({
-					username: '',
-					password: ''
+					username: attach && attach.name ? attach.name : '',
+					password: attach && attach.pass ? attach.pass : ''
 				})
 				.on('afterrender', function (evt) {
 					console.log('login render', evt);
@@ -234,7 +829,11 @@
 				})
 					.done((data) =>
 					{this.trigger('loginEvent', data);
-					});
+					})
+			/*.fail(function (answer) {
+					console.log('login fail', answer);
+					//if (answer.status==401) me.trigger('logoutEvent','expired')
+				})*/;
 			}
 			return this;
 		}
@@ -244,7 +843,7 @@
 
 
 /***/ },
-/* 5 */
+/* 7 */
 /***/ function(module, exports) {
 
 	var loginFormValidation = function() {
@@ -295,10 +894,10 @@
 
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var registerFormValidation = __webpack_require__(7);
+	var registerFormValidation = __webpack_require__(9);
 	var register = Class({
 		'extends': MK.Object,
 		constructor: function () {
@@ -344,9 +943,10 @@
 					data: JSON.stringify(this.toJSON()),
 					dataType: "json"
 				})
-					.done(function (data) {
-
-					});
+					.done((data) =>
+					{this.trigger('registerEvent', {name:this.username,pass:this.password});
+						console.log('trigger registerEvent',data);
+					})
 			}
 			return this;
 		}
@@ -355,7 +955,7 @@
 	module.exports = register;
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports) {
 
 	var registerFormValidation = function() {
@@ -446,7 +1046,25 @@
 
 
 /***/ },
-/* 8 */
+/* 10 */
+/***/ function(module, exports) {
+
+	var lost = Class({
+		'extends': MK.Object,
+		constructor: function () {
+			this.on('afterrender', () => {
+				this.bindNode('pageLink', ':sandbox .page-link')
+					.on('click::pageLink', (evt)=> {
+						this.trigger('wantPage', evt.target.pathname)
+					});
+			});
+		}
+	});
+
+	module.exports = lost;
+
+/***/ },
+/* 11 */
 /***/ function(module, exports) {
 
 	var Session = Class({
@@ -457,8 +1075,12 @@
 					console.log('session change',this);
 					localStorage.setItem('session', JSON.stringify(this));
 				},100)
+				.on('change:user_id', (evt)=> {
+					console.log('user_id change',evt);
+					this.trigger('userEvent',evt.value)
+				})
 				.bindNode('btnLogout', '#logout')
-				.on('click::btnLogout',()=>{this.trigger('logoutEvent')});
+				.on('click::btnLogout',()=>{this.trigger('logoutEvent','manual')});
 			this.parseBindings($('#session'));
 		},
 		refresh: function() {
@@ -479,7 +1101,7 @@
 					})
 					.fail(function (answer) {
 						console.log('fail', answer);
-						if (answer.status==401) me.trigger('logoutEvent')
+						if (answer.status==401) me.trigger('logoutEvent','expired')
 					})
 					/*.always(function() {
 					 alert( "complete" );
@@ -491,7 +1113,7 @@
 	module.exports = Session;
 
 /***/ },
-/* 9 */
+/* 12 */
 /***/ function(module, exports) {
 
 	var

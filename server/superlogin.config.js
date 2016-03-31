@@ -6,7 +6,7 @@ module.exports = {
   },
   security: {
     maxFailedLogins: 3,
-	  sessionLife: 10,
+	  sessionLife: 600,
   },
   local: {
     sendConfirmEmail: true,
@@ -48,7 +48,8 @@ module.exports = {
       }
     },
     defaultDBs: {
-      private: ['todos']
+      private: ['todos'],
+	    //shared: ['todos_shared']
     },
     privatePrefix: 'sldemo',
     designDocDir: __dirname + '/designDocs'

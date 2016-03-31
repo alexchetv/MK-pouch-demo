@@ -6,6 +6,10 @@ var Session = Class({
 				console.log('session change',this);
 				localStorage.setItem('session', JSON.stringify(this));
 			},100)
+			.on('change:user_id', (evt)=> {
+				console.log('user_id change',evt);
+				this.trigger('userEvent',evt.value)
+			})
 			.bindNode('btnLogout', '#logout')
 			.on('click::btnLogout',()=>{this.trigger('logoutEvent','manual')});
 		this.parseBindings($('#session'));
