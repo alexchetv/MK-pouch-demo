@@ -66,27 +66,60 @@ var Application = Class({
 			.linkProps('online', [
 				Offline, 'state'
 			], function (a) {
-				return a == 'up';
+				return (a === 'up') ? true:false;
 			})
-			.bindNode('online', '#indicator i:last-child', {
+			.bindNode('online', '#indicator i', {
 				getValue: null,
 				setValue: function (v) {
 					$(this).toggleClass('fa-refresh', v);
 					$(this).toggleClass('fa-minus-circle', !v);
 				}
 			})
+			.bindNode('rotate', '#indicator i', MK.binders.className('my-spin'))
+			.on('routes.*.dataSource@ReplicationActive', ()=> {
+				console.log('routes.*.dataSource@ReplicationActive');
+				if (this.rotate) return;
+				this.rotate=true;
+				this.stopRotate=false;
+				var timerId = setInterval(() => {
+					if (this.stopRotate) {
+						this.rotate = false;
+						this.stopRotate = false;
+						clearInterval(timerId);
+					}
+				}, 1000);
+			})
+			.on('routes.*.dataSource@ReplicationPaused', ()=> {
+				console.log('routes.*.dataSource@ReplicationPaused');
+				this.stopRotate=true;
+			})
 /*
-			.on('store.*@dbReady', (data, db) => {
-				console.log('dbReady', data, db);
-				db.allDocs({
-					include_docs: true,
-					attachments: true,
-					startkey: 'todo',
-					endkey: 'todo\uffff'
-				}).then((data)=> {
-					console.log('db.find', data);
-				})
-			})*/
+
+ init: function() {
+ this._super(...arguments);
+ console.log('replicatingOninit');
+ let appAdapter = this.get('store').adapterFor('application');
+ appAdapter.on('ReplicationActive', function() {
+ if (this.get('synch')) return;
+ this.set('synch',true);
+ this.set('stopspin',false);
+ var timerId = setInterval(function() {
+ if (this.stopspin) {
+ this.set('synch',false);
+ this.set('stopspin',false);
+ clearInterval(timerId);
+ }
+ }.bind(this), 1000);
+ }.bind(this));
+ appAdapter.on('ReplicationPaused',function() {
+ console.log('replicatingOff',this.synch);
+ this.set('stopspin',true);
+ }.bind(this));
+ },
+
+
+
+			*/
 			.on('session@userEvent', (uid) => {
 				console.log('userEvent', uid)
 				this.routes.set('loggedIn', !!uid);
@@ -120,14 +153,6 @@ var Application = Class({
 		this.session = JSON.parse(localStorage.getItem('session'));
 		//then refresh it
 		this.session.refresh();
-		/*Offline.on('up', () => {
-		 this.online = true;
-		 console.log('online',this.online);
-		 }, this);
-		 Offline.on('down', () => {
-		 this.online = false;
-		 console.log('offline',this.online);
-		 }, this);*/
 	}
 });
 Offline.options = {requests: false};

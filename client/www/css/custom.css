@@ -22,11 +22,11 @@
 #indicator {
     position: absolute;
     left: -2px;
-    top: 31px;
-}
-
-#indicator i:first-child {
-    color:white;
+    top: 30px;
+    width:25px;
+    height: 25px;
+    font-size: 20px;
+    background-color: white;
 }
 
 .fa-refresh {
@@ -37,9 +37,30 @@
     color: red;
 }
 
-.fa-circle-thin
-{
-    color: #222;
+.my-spin {
+    -webkit-animation: my-spin 1s infinite ease;
+    animation: my-spin 1s infinite ease;
+}
+
+@-webkit-keyframes my-spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(180deg);
+        transform: rotate(180deg);
+    }
+}
+@keyframes my-spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(180deg);
+        transform: rotate(180deg);
+    }
 }
 
 #top-bar * {

@@ -13,7 +13,6 @@ var Todo = Class({
 				console.log('todo render', evt);
 				this
 					.bindNode('title', ':sandbox label', MK.binders.html())
-					//.bindNode('complete', ':sandbox .toggle')
 					.bindNode('complete', ':sandbox', MK.binders.className('complete'))
 					.bindNode('editing', ':sandbox', MK.binders.className('editing'))
 					.bindNode('edit',':sandbox .edit')
@@ -23,8 +22,8 @@ var Todo = Class({
 			.on('dblclick::title', () =>{
 				this.trigger('editEvent',this);
 			})
-			.on('change:editing',(evt) => {
-				if (evt.value) {
+			.on('change:editing',() => {
+				if (this.editing) {
 					this.edit = this.title;
 					this.$bound('edit').focus();
 				}
@@ -32,7 +31,7 @@ var Todo = Class({
 			.on('keyup::edit', function(evt) {
 				var editValue;
 				if (evt.which === 27) {
-					this.editing = false;
+					this.trigger('editEvent',null);
 				} else if (evt.which === 13) {
 					if (editValue = this.edit.trim()) {
 						//this.title = editValue;
@@ -44,7 +43,7 @@ var Todo = Class({
 						}).then((response) => {
 							console.log('response',response);
 							this.edit = '';
-							this.editing = false;
+							this.trigger('editEvent',null);
 						}).catch( (err) => {
 							console.log('err',err);
 						});

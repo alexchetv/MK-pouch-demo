@@ -42,15 +42,15 @@ var Routes = Class({
 		this
 			.set('loggedIn',false)
 			.bindNode('sandbox', '#page-content')
-			.onDebounce('change:current', function (evt) {
-				console.log('change:routes.current', this.loggedIn, evt.value,evt.attach);
+			.onDebounce('change:current', (evt) => {
+				console.log('change:routes.current', this.loggedIn, this.current,evt.attach);
 				this.recreate();
-				if (evt.value) {
-					if (routesList.hasOwnProperty(evt.value)) {
-						if (!this.loggedIn && routesList[evt.value].restricted) {
+				if (this.current) {
+					if (routesList.hasOwnProperty(this.current)) {
+						if (!this.loggedIn && routesList[this.current].restricted) {
 							this.current = 'login';
 						} else {
-							this.push(new routesList[evt.value].creator(session,evt.attach));//передаем сессию и аттачмент
+							this.push(new routesList[this.current].creator(session,evt.attach));//передаем сессию и аттачмент
 						}
 					} else {
 						this.current = 'lost';

@@ -26,28 +26,27 @@ var Todos = Class({
 			console.log('dataSource@dbReady', data);
 			this.recreate(data);
 		});
-		this.on('dataSource@dbUpdate', (docs) => {
-			console.log('dataSource@dbUpdate', docs);
+		this.on('dataSource@dbUpdate', (doc) => {
+			console.log('dataSource@dbUpdate', doc);
 			for (let index = this.length - 1; index >= 0; index--) {
 				let todo = this[index];
 				console.log('each', todo);
-				for (let i = docs.length - 1; i >= 0; i--) {
-					console.log ('doc',docs[i])
-					if (docs[i]._id === todo._id) {
-						if (docs[i]._deleted) {
-							this.pull(index);
-						} else {
-							todo._rev = docs[i]._rev;
-							todo.title = docs[i].title;
-							todo.complete = docs[i].complete;
-						}
-						docs.splice(i, 1);
+				if (doc._id === todo._id) {
+					if (doc._deleted) {
+						this.pull(index);
+					} else {
+						todo._rev = doc._rev;
+						todo.title = doc.title;
+						todo.complete = doc.complete;
 					}
+					doc = null;
+					break;
 				}
 			}
-			docs.forEach((doc) => {
-					this.push(new Todo(doc,this));
-			})
+			if (doc && !doc._deleted) {
+				this.push(new Todo(doc, this));
+			}
+
 		});
 		this
 			.on('afterrender', function (evt) {
@@ -56,19 +55,24 @@ var Todos = Class({
 					.bindNode('container', '#todo-list')
 					.bindNode('newTodo', ':sandbox .new-todo')
 			})
-			.on('*@editEvent',function(item) {
-				console.log('editEvent',item);
+			.on('*@editEvent', function (item) {
+				console.log('editEvent', item);
 				this.editingTodo = item;
 			})
-			.on('change:editingTodo',function(evt) {
-				console.log('change',evt);
-				if (evt.previousValue) evt.previousValue.editing=false;
-				if (evt.value) evt.value.editing=true;
+			.on('beforechange:editingTodo', () => {
+				//console.log('change:editingTodo', evt);
+				//if (evt.previousValue) evt.previousValue.editing = false;
+				if (this.editingTodo) this.editingTodo.editing = false;
 			})
-			.on('focus::newTodo', function(evt) {
+			.on('change:editingTodo',  () => {
+				//console.log('change:editingTodo', evt);
+				//if (evt.previousValue) evt.previousValue.editing = false;
+				if (this.editingTodo) this.editingTodo.editing = true;
+			})
+			.on('focus::newTodo', function (evt) {
 				this.editingTodo = null;
 			})
-			.on('keyup::newTodo', function(evt) {
+			.on('keyup::newTodo', function (evt) {
 				var newValue;
 				if (evt.which === 27) {
 					this.newTodo = '';
@@ -76,11 +80,11 @@ var Todos = Class({
 					if (newValue = this.newTodo.trim()) {
 						this.dataSource.put({
 							title: newValue,
-							complete:false
-						},'todo').then(function (response) {
-							console.log('response',response);
+							complete: false
+						}, 'todo').then(function (response) {
+							console.log('response', response);
 						}).catch(function (err) {
-							console.log('err',err);
+							console.log('err', err);
 						});
 						this.newTodo = '';
 					}
