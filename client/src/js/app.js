@@ -1,43 +1,42 @@
 "use strict";
+/**
+ A sample single page app using SuperLogin, MatreshkaJS, Skeleton, Formvalidation and PouchDB
+
+  @module Matreshka Demo
+ */
 var Routes = require('./routes');
 var Session = require('./session');
 var PouchMirror = require('./pouch_mirror');
-var init = require('./init');
-
-
-/*****************************************************************
- * Store
-
-
- var Store = Class({
-	'extends': MK.Array,
-	Model: PouchMirror,
-	constructor: function (data) {
-		"use strict";
-
-	this.reload: function (DBs) {
-		console.log('reload');
-		this.recreate();
-		for (var db in DBs) {
-			console.log("DBs." + db + " = " + DBs[db]);
-			this.push({remote: DBs[db], local: db});
-		}
-	}
-});
-*/
-/*****************************************************************
- * Application
+var makePopover = require('./make_popover');
+/**
+ * Главный класс приложения
+ *
+ * @class Application
+ * @constructor
  */
-
 var Application = Class({
 	'extends': MK.Object,
 
 	constructor: function () {
+		/**
+		 Сессия содержит данные о текущей сессии и юзере
+
+		  @property session
+		  @type Session
+		 */
+		this.setClassFor('session', Session);
+		//Сначала загружаем сохраненную в localStorage сессию.
+		this.session = JSON.parse(localStorage.getItem('session'));
+		//Затем посылаем запрос на ее обновление.
+		this.session.refresh();
 		this
-			//.jset('online', Offline.state == 'up')
-			.setClassFor('session', Session)
+		/**
+		 * Страницы приложения
+		 *
+		 * @property routes
+		 * @type Routes
+		 */
 			.set('routes', new Routes(this.session))
-			//.set('store', new Store())
 			.bindNode('sandbox', '#app')
 			.bindNode('routes.current', ':sandbox .page-link', {
 				on: 'click',
@@ -66,7 +65,7 @@ var Application = Class({
 			.linkProps('online', [
 				Offline, 'state'
 			], function (a) {
-				return (a === 'up') ? true:false;
+				return (a === 'up');
 			})
 			.bindNode('online', '#indicator i', {
 				getValue: null,
@@ -93,37 +92,6 @@ var Application = Class({
 				console.log('routes.*.dataSource@ReplicationPaused');
 				this.stopRotate=true;
 			})
-/*
-
- init: function() {
- this._super(...arguments);
- console.log('replicatingOninit');
- let appAdapter = this.get('store').adapterFor('application');
- appAdapter.on('ReplicationActive', function() {
- if (this.get('synch')) return;
- this.set('synch',true);
- this.set('stopspin',false);
- var timerId = setInterval(function() {
- if (this.stopspin) {
- this.set('synch',false);
- this.set('stopspin',false);
- clearInterval(timerId);
- }
- }.bind(this), 1000);
- }.bind(this));
- appAdapter.on('ReplicationPaused',function() {
- console.log('replicatingOff',this.synch);
- this.set('stopspin',true);
- }.bind(this));
- },
-
-
-
-			*/
-			.on('session@userEvent', (uid) => {
-				console.log('userEvent', uid)
-				this.routes.set('loggedIn', !!uid);
-			})
 			.on('routes.*@loginEvent', (data)=> {
 				console.log('loginEvent', data);
 				//set session properties
@@ -137,22 +105,24 @@ var Application = Class({
 				this.routes.set('current', 'login', {attach: data});
 			})
 			.on('session@logoutEvent',
-			(reason)=> {//explain why the user was logged out (e.g. 'manual', 'expired')
+			(reason)=> {//(e.g. 'manual', 'expired'.'destroy')
 				console.log('session@logoutEvent', this.session);
 				this.session.each((value, key) => {
 					this.session[key] = '';
 				})
 				this.routes.current = 'login';
+				if (reason==='destroy') {
+					new PouchDB('todos').destroy().then(()=>{
+						console.log('destroy DB');
+					})
+				}
 			})
 			.on('routes.*@wantPage', (data)=> {
 				console.log('wantPage', data);
 				this.routes.current = data.substr(1);
 			})
 			.parseBindings();
-		//recreate session from the one previously saved in localStorage
-		this.session = JSON.parse(localStorage.getItem('session'));
-		//then refresh it
-		this.session.refresh();
+
 	}
 });
 Offline.options = {requests: false};

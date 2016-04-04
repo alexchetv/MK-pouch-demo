@@ -31,6 +31,12 @@ var routesList = {
 		restricted: false
 	},
 }
+/**
+ Содержит массив страниц приложения
+
+ @class Routes
+ @constructor
+ */
 
 var Routes = Class({
 	'extends': MK.Array,
@@ -42,8 +48,13 @@ var Routes = Class({
 		this
 			.set('loggedIn',false)
 			.bindNode('sandbox', '#page-content')
-			.onDebounce('change:current', (evt) => {
-				console.log('change:routes.current', this.loggedIn, this.current,evt.attach);
+			.linkProps('loggedIn', [
+				session, 'user_id'
+			], function (a) {
+				return !!a;
+			})
+			.on('change:current', (evt) => {
+				console.log('change:routes.current', this.loggedIn, this.current,evt.attach,session);
 				this.recreate();
 				if (this.current) {
 					if (routesList.hasOwnProperty(this.current)) {
@@ -58,7 +69,12 @@ var Routes = Class({
 				} else {
 					this.current = 'todos';
 				}
-			}, 100);
+			})
+			.on('removeone', function(evt) {
+				let r = evt.removed;
+				if (r.wipeOut) r.wipeOut();
+				r = null;
+			});
 		this.initRouter('current', 'history');
 	}
 });

@@ -19,7 +19,8 @@ var Todo = Class({
 					.bindNode('destroy', ':sandbox .destroy')
 					.bindNode('done', ':sandbox .done')
 			})
-			.on('dblclick::title', () =>{
+			.on('dblclick::title', (evt) =>{
+				evt.preventDefault();
 				this.trigger('editEvent',this);
 			})
 			.on('change:editing',() => {
@@ -53,11 +54,9 @@ var Todo = Class({
 				}
 			})
 			.on('click::destroy', function() {
-				console.log('click::destroy');
 				parent.dataSource.pull(JSON.stringify(this));
 			})
 			.on('click::done', function() {
-				console.log('click::done');
 				parent.dataSource.put({
 					title: this.title,
 					complete:!this.complete,

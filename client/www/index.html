@@ -64,10 +64,10 @@
 	<li>
 		<div class="view">
 			<button class="done"></button>
-			<label></label>
+			<label ondblclick="return false"></label>
 			<button class="destroy"></button>
 		</div>
-		<input class="edit u-full-width">
+		<input class="edit">
 	</li>
 </script>
 
@@ -157,8 +157,9 @@
 		<div id="session" class="u-pull-right logged-in">
 			<a data-popover="#user-popover" href="#" class="u-pull-right" onclick="return false">{{user_id}}</a>
 			<ul id="user-popover" class="popover">
-				<li><a href="#" id="logout" onclick="return false">Log out</a></li>
 				<li class="page-wrap"><a class="page-link" href="/profile" onclick="return false">Profile</a></li>
+				<li><a href="/logout" id="logout" onclick="return false">Log out</a></li>
+				<li><a href="/destroy" id="destroy" onclick="return false">Log out and delete local DB</a></li>
 			</ul>
 		</div>
 		<div class="u-pull-right not-logged-in">

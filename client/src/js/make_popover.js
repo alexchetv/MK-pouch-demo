@@ -2,7 +2,7 @@ var
 	$popoverLink = $('[data-popover]'),
 	$document = $(document);
 
-function init() {
+function makePopover() {
 	$popoverLink.on('click', openPopover);
 	$document.on('click', closePopover);
 }
@@ -23,4 +23,4 @@ function closePopover(e) {
 	}
 }
 
-module.exports = init;
+module.exports = makePopover;

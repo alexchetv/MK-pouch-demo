@@ -1,3 +1,9 @@
+/**
+ Содержит данные о текущей сессии и юзере
+
+ @class Session
+ @constructor
+ */
 var Session = Class({
 	'extends': MK.Object,
 	constructor: function (data) {
@@ -6,12 +12,10 @@ var Session = Class({
 				console.log('session change',this);
 				localStorage.setItem('session', JSON.stringify(this));
 			},100)
-			.on('change:user_id', (evt)=> {
-				console.log('user_id change',evt);
-				this.trigger('userEvent',evt.value)
-			})
 			.bindNode('btnLogout', '#logout')
-			.on('click::btnLogout',()=>{this.trigger('logoutEvent','manual')});
+			.on('click::btnLogout',()=>{this.trigger('logoutEvent','manual')})
+			.bindNode('btnDestroy', '#destroy')
+			.on('click::btnDestroy',()=>{this.trigger('logoutEvent','destroy')});
 		this.parseBindings($('#session'));
 	},
 	refresh: function() {
@@ -26,7 +30,7 @@ var Session = Class({
 				dataType: "json"
 			})
 				.done(function (data) {
-					console.log(me, data);
+					console.log('REFRESH',me, data);
 					me.expires = data.expires;
 					//TODO check others returned user data and logout if they change
 				})

@@ -1,5 +1,5 @@
 {
-  "name": "superlogin-demo",
+  "name": "matreshka-demo",
   "version": "0.0.1",
   "description": "A sample single page app using SuperLogin, MatreshkaJS, Skeleton, Formvalidation and PouchDB",
   "scripts": {
@@ -19,12 +19,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/colinskow/superlogin-demo.git"
+    "url": "https://github.com/alexchetv/MK-pouch-demo"
   },
   "author": "Alex Chetv",
   "license": "MIT",
   "engines": {
-    "node": "4.0.x"
+    "node": "5.0.x"
   },
   "cacheDirectories": [
     "node_modules",

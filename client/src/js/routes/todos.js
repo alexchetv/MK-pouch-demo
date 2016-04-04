@@ -23,14 +23,14 @@ var Todos = Class({
 			session.trigger('logoutEvent', 'No Database');
 		}
 		this.on('dataSource@dbReady', (data) => {
-			console.log('dataSource@dbReady', data);
 			this.recreate(data);
 		});
+		this.on('dataSource@unauthorizedEvent', (data) => {
+			session.trigger('logoutEvent', 'unauthorized');
+		});
 		this.on('dataSource@dbUpdate', (doc) => {
-			console.log('dataSource@dbUpdate', doc);
 			for (let index = this.length - 1; index >= 0; index--) {
 				let todo = this[index];
-				console.log('each', todo);
 				if (doc._id === todo._id) {
 					if (doc._deleted) {
 						this.pull(index);
@@ -50,23 +50,17 @@ var Todos = Class({
 		});
 		this
 			.on('afterrender', function (evt) {
-				console.log('todos render', evt);
 				this
 					.bindNode('container', '#todo-list')
 					.bindNode('newTodo', ':sandbox .new-todo')
 			})
 			.on('*@editEvent', function (item) {
-				console.log('editEvent', item);
 				this.editingTodo = item;
 			})
 			.on('beforechange:editingTodo', () => {
-				//console.log('change:editingTodo', evt);
-				//if (evt.previousValue) evt.previousValue.editing = false;
 				if (this.editingTodo) this.editingTodo.editing = false;
 			})
 			.on('change:editingTodo',  () => {
-				//console.log('change:editingTodo', evt);
-				//if (evt.previousValue) evt.previousValue.editing = false;
 				if (this.editingTodo) this.editingTodo.editing = true;
 			})
 			.on('focus::newTodo', function (evt) {
@@ -90,7 +84,14 @@ var Todos = Class({
 					}
 				}
 			});
+	},
+	wipeOut:function(){
+		this.dataSource.stopSync();
+		this.dataSource.change.cancel();
+		this.dataSource.remoteDb = null;
+		this.dataSource.db = null;
+		this.dataSource.diskDb = null;
+		this.dataSource = null;
 	}
 });
-
 module.exports = Todos;
