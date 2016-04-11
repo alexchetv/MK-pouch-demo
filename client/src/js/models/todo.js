@@ -1,6 +1,15 @@
 "use strict";
 var Todo = Class({
 	'extends': MK.Object,
+	renderer:
+		`<li>
+		<div class="view">
+			<button class="done"></button>
+			<label></label>
+			<button class="destroy"></button>
+		</div>
+		<input class="edit">
+	</li>`,
 	constructor: function (data, parent) {
 		this
 			.jset({

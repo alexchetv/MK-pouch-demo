@@ -93,8 +93,10 @@ var PouchMirror = Class({
 		// This means the sync was cancelled
 		// These should show up under the 'error' handler but PouchDB is firing 'complete' instead
 		if (this.checkUnauthorized(info)) {
+			console.log('unauthorizedEvent',info);
 			this.trigger('unauthorizedEvent', {"info": info});
 		} else {
+			console.log('ReplicationComplete',info);
 			this.trigger('ReplicationComplete', {"info": info});
 		}
 	},

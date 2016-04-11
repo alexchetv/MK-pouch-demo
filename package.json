@@ -4,7 +4,9 @@
   "description": "A sample single page app using SuperLogin, MatreshkaJS, Skeleton, Formvalidation and PouchDB",
   "scripts": {
     "postinstall": "node ./node_modules/bower/bin/bower install",
-    "start": "node ./server/bin/www"
+    "start": "node ./server/bin/www",
+    "docser": "yuidoc ./client/src/js --server 4000 -o ./client/doc",
+    "doc": "yuidoc ./client/src/js -o ./client/doc"
   },
   "keywords": [
     "superlogin",

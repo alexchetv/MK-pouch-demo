@@ -1,7 +1,32 @@
 var loginFormValidation = require('../validation/login-form');
+var Page = require('./page');
+
 var login = Class({
-	'extends': MK.Object,
+	'extends': Page,
+	title:'Login',
+	renderer:
+		`<form id="login-form">
+		<h4>Login form</h4>
+		<div class="row">
+			<label>Username</label>
+			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
+		</div>
+		<div class="row">
+			<label>Password</label>
+			<input class="u-full-width" name="password" type="password" placeholder="Password"/>
+		</div>
+		<div class="row">
+			<label>
+				<input type="checkbox" class="show-password"/>
+				<span class="label-body">Show Password</span>
+			</label>
+		</div>
+		<div class="row">
+			<input class="button-primary" id="btn-login" type="submit" value="Login"/>
+		</div>
+	</form>`,
 	constructor: function (session,attach) {
+		this.setTitle();
 		this
 			.jset({
 				username: attach && attach.name ? attach.name : '',
@@ -41,12 +66,31 @@ var login = Class({
 				dataType: "json"
 			})
 				.done((data) =>
-				{this.trigger('loginEvent', data);
+				{
+					this.trigger('loginEvent', data);
+					noti.createNoti({
+						message: "Welcome "+data.user_id+"!",
+						type: "success",
+						showDuration: 2
+					})
 				})
-		/*.fail(function (answer) {
+		.fail(function (answer) {
 				console.log('login fail', answer);
-				//if (answer.status==401) me.trigger('logoutEvent','expired')
-			})*/;
+				$('#login-form').data('formValidation').validate();
+				let message = "Error something is wrong";
+				if (answer.responseJSON && answer.responseJSON.message) {
+						message =  answer.responseJSON.message;
+				}
+				noti.createNoti({
+					message: message,
+					type: "error",
+					showDuration: 2,
+					//это делает кнопку доступной (почему?)
+					onHide: function() {
+						$('#login-form').data('formValidation').revalidateField('username');
+					}
+				})
+			});
 		}
 		return this;
 	}

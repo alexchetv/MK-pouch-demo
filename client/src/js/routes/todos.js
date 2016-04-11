@@ -1,17 +1,23 @@
 "use strict";
 var Todo = require('../models/todo');
 var PouchMirror = require('../pouch_mirror');
+var ArrayPage = require('./array_page');
 
 var Todos = Class({
-	'extends': MK.Array,
+	'extends': ArrayPage,
+	title:'Todos',
+	renderer:
+		`<h4>Todos</h4>
+	<input class="new-todo u-full-width" placeholder="What needs to be done?" autofocus>
+	<ul id="todo-list"></ul>`,
 	Model: Todo,
-	itemRenderer: '#todo-item-template',
 	constructor: function (session) {
+		this.setTitle(session.user_id);
 		this.set('DBs', session.userDBs);
 		if (this.DBs.todos) {
 			this.set('dataSource', new PouchMirror(
 				{
-					local: 'todos',
+					local: 'todos_'+session.user_id,
 					remote: this.DBs.todos,
 					type: 'todo',
 					remoteOptions: {
@@ -20,13 +26,13 @@ var Todos = Class({
 				}
 			));
 		} else {
-			session.trigger('logoutEvent', 'No Database');
+			session.logout('No Database Found');
 		}
 		this.on('dataSource@dbReady', (data) => {
 			this.recreate(data);
 		});
 		this.on('dataSource@unauthorizedEvent', (data) => {
-			session.trigger('logoutEvent', 'unauthorized');
+			session.logout('Access  not allowed');
 		});
 		this.on('dataSource@dbUpdate', (doc) => {
 			for (let index = this.length - 1; index >= 0; index--) {

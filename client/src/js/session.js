@@ -1,47 +1,80 @@
-/**
- Содержит данные о текущей сессии и юзере
-
- @class Session
- @constructor
- */
+"use strict";
+//Содержит данные о текущей сессии и юзере
 var Session = Class({
 	'extends': MK.Object,
 	constructor: function (data) {
+		console.log('session creating', data);
 		this
+			.jset('user_id', null)
+			.jset(data)
 			.onDebounce('change', ()=> {
-				console.log('session change',this);
+				console.log('session change', this);
 				localStorage.setItem('session', JSON.stringify(this));
-			},100)
+			}, 100)
 			.bindNode('btnLogout', '#logout')
-			.on('click::btnLogout',()=>{this.trigger('logoutEvent','manual')})
+			.on('click::btnLogout', (evt)=> {
+				evt.preventDefault();
+				this.logout();
+			})
 			.bindNode('btnDestroy', '#destroy')
-			.on('click::btnDestroy',()=>{this.trigger('logoutEvent','destroy')});
+			.on('click::btnDestroy', (evt)=> {
+				evt.preventDefault();
+				this.logout(null, true);
+			});
 		this.parseBindings($('#session'));
 	},
-	refresh: function() {
-		console.log('this.token', this.token);
+	//запрос на сервер с авторизацией
+	authAjax: function (type, url,data) {
+		console.log ('authAjax',type, url);
 		if (this.token && this.password) {
 			var me = this;
-			$.ajax({
-				type: "POST",
+			return $.ajax({
+				type: type,
 				contentType: "application/json",
-				url: '/auth/refresh',
+				data:data,
+				url: url,
 				headers: {'Authorization': 'Bearer ' + me.token + ':' + me.password},
 				dataType: "json"
 			})
-				.done(function (data) {
-					console.log('REFRESH',me, data);
-					me.expires = data.expires;
-					//TODO check others returned user data and logout if they change
-				})
-				.fail(function (answer) {
-					console.log('fail', answer);
-					if (answer.status==401) me.trigger('logoutEvent','expired')
-				})
-				/*.always(function() {
-				 alert( "complete" );
-				 })*/;
+				.fail((answer) => {
+					if (answer.status == 401) {
+						//нас успели выкинуть
+						this.trigger('kickedEvent', 'Sorry! Your Session expired!');
+					} else {
+						let message = "Error something is wrong";
+						if (answer.responseJSON && answer.responseJSON.message) {
+							message = answer.responseJSON.message;
+						}
+						noti.createNoti({
+							message: message,
+							type: "error",
+							showDuration: 2
+						})
+					}
+					return answer;
+				});
+		} else {
+			return $.Deferred().reject({responseJSON: {message: 'Token and password required'}});
 		}
+	},
+logout: function(message = null,destroy = false) {
+		//logout on server
+		this.authAjax('POST','/auth/logout')
+			.then(()=>{
+				this.trigger('kickedEvent', message,destroy);
+			});
+	},
+
+	//запрос на обновление сессии
+	refresh: function () {
+		return this.authAjax('POST', '/auth/refresh')
+			.done((data) => {
+				console.log('REFRESH', data);
+				this.jset(data);
+			})
+			.fail((answer) => {
+				console.log('fail', answer);
+			});
 	},
 });
 

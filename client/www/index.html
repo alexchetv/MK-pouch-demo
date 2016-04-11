@@ -5,7 +5,7 @@
 	<!-- Basic Page Needs
 	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
 	<meta charset="utf-8">
-	<title>Your page title here :)</title>
+	<title>Matreska Demo</title>
 	<meta name="description" content="">
 	<meta name="author" content="">
 
@@ -39,6 +39,7 @@
 	<!-- FormValidation plugin and the class supports validating Skeleton form -->
 	<script src="/lib/Formvalidation/fv.min.js"></script>
 	<script src="/lib/Formvalidation/skeleton.js"></script>
+	<script src="/lib/noti/dist/noti.js"></script>
 
 	<script src="/lib/pouchdb/pouchdb-5.3.1.js"></script>
 	<script src="/lib/pouchdb/pouchdb.memory.js"></script>
@@ -52,129 +53,34 @@
 
 </head>
 <body>
-<!-- Todos template
-	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<script type="text/html" id="todos-template">
-	<h4>Todos</h4>
-	<input class="new-todo u-full-width" placeholder="What needs to be done?" autofocus>
-	<ul id="todo-list"></ul>
-</script>
-
-<script type="text/html" id="todo-item-template">
-	<li>
-		<div class="view">
-			<button class="done"></button>
-			<label ondblclick="return false"></label>
-			<button class="destroy"></button>
-		</div>
-		<input class="edit">
-	</li>
-</script>
-
-<!-- 404 template
-	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<script type="text/html" id="lost-template">
-	<h4>404</h4>
-	<div>Page Not Found</div>
-	<div><a class="page-link" href="/" onclick="return false">Go Home</a></div>
-</script>
-
-<!-- Profile template
-	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<script type="text/html" id="profile-template">
-	<h4>Profile</h4>
-</script>
-
-<!-- LoginForm template
-	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<script type="text/html" id="login-template">
-	<form id="login-form">
-		<h4>Login form</h4>
-
-		<div class="row">
-			<label>Username</label>
-			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
-		</div>
-		<div class="row">
-			<label>Password</label>
-			<input class="u-full-width" name="password" type="password" placeholder="Password"/>
-		</div>
-		<div class="row">
-			<label>
-				<input type="checkbox" class="show-password"/>
-				<span class="label-body">Show Password</span>
-			</label>
-		</div>
-		<div class="row">
-			<input class="button-primary" id="btn-login" type="submit" value="Login"/>
-		</div>
-	</form>
-</script>
-
-<!-- RegisterForm template
-	–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<script type="text/html" id="register-template">
-	<form id="register-form">
-		<h4>Register form</h4>
-
-		<div class="row">
-			<label>Username</label>
-			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
-		</div>
-		<div class="row">
-			<label>Email</label>
-			<input class="u-full-width" name="email" type="text" placeholder="Email"/>
-		</div>
-		<div class="row">
-			<label>Password</label>
-			<input class="u-full-width" name="password" type="password" placeholder="Password"/>
-		</div>
-		<div class="row">
-			<label>Confirm Password</label>
-			<input class="u-full-width" name="confirm" type="password" placeholder="Confirm Password"/>
-		</div>
-		<div class="row">
-			<label>
-				<input type="checkbox" class="show-password"/>
-				<span class="label-body">Show Password</span>
-			</label>
-		</div>
-		<div class="row">
-			<div class="four columns">
-				<input class="button-primary" id="btn-register" type="submit" value="Register"/>
-			</div>
-		</div>
-	</form>
-</script>
-
-<!-- Primary Page Layout
-–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<div id="noti"></div>
 <div class="container" id="app">
-	<div id="indicator">
-		<i class="fa fa-refresh" ></i>
-	</div>
 	<div class="row" id="top-bar">
-		<div id="session" class="u-pull-right logged-in">
-			<a data-popover="#user-popover" href="#" class="u-pull-right" onclick="return false">{{user_id}}</a>
+		<div id="indicator">
+			<i class="fa fa-refresh" ></i>
+		</div>
+		<div class="page-wrap">
+			<a class="page-link not-loggedin-disabled" href="/todos">Todos</a>
+		</div>
+		<div id="session" class="u-pull-right not-loggedin-hidden">
+			<a data-popover="#user-popover" class="u-pull-right">{{user_id}}</a>
 			<ul id="user-popover" class="popover">
-				<li class="page-wrap"><a class="page-link" href="/profile" onclick="return false">Profile</a></li>
-				<li><a href="/logout" id="logout" onclick="return false">Log out</a></li>
-				<li><a href="/destroy" id="destroy" onclick="return false">Log out and delete local DB</a></li>
+				<li class="page-wrap"><a class="page-link" href="/profile">Profile</a></li>
+				<li><a href="/logout" id="logout">Log out</a></li>
+				<li><a href="/destroy" id="destroy">Log out and Wipe out</a></li>
 			</ul>
 		</div>
-		<div class="u-pull-right not-logged-in">
-			<div class="page-wrap"><a class="page-link" href="/login" onclick="return false">Login</a>
+		<div class="u-pull-right loggedin-hidden">
+			<div class="page-wrap"><a class="page-link" href="/login">Login</a>
 			</div>
 			<div
-					class="page-wrap"> or <a class="page-link" href="/register" onclick="return false">Register</a>
+					class="page-wrap"> or <a class="page-link" href="/register">Register</a>
 			</div>
 		</div>
 	</div>
 	<div class="one-half column" style="margin-top: 10px" id="page-content">
 	</div>
 </div>
-<!-- End Document
-  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 <script src="/js/bundle.js"></script>
 </html>

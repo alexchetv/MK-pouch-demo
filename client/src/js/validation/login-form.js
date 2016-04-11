@@ -4,7 +4,7 @@ var loginFormValidation = function() {
 		autoFocus: false,
 		icon: {
 			valid: 'fa fa-check',
-			invalid: 'fa fa-times',
+			invalid: 'fa fa-exclamation my-wave',
 			validating: 'fa fa-refresh',
 			feedback: 'fv-control-feedback'
 		},
@@ -39,7 +39,7 @@ var loginFormValidation = function() {
 				}
 			}
 		}
-	});
+	})/*.formValidation('validate')*/;
 }
 
 module.exports = loginFormValidation;
