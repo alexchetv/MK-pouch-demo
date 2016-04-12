@@ -1,3 +1,4 @@
+"use strict";
 var loginFormValidation = require('../validation/login-form');
 var Page = require('./page');
 
@@ -24,7 +25,10 @@ var login = Class({
 		<div class="row">
 			<input class="button-primary" id="btn-login" type="submit" value="Login"/>
 		</div>
-	</form>`,
+	</form>
+	<div class="row">
+			<input class="button-primary" id="btn-google" type="button" value="Google"/>
+		</div>`,
 	constructor: function (session,attach) {
 		this.setTitle();
 		this
@@ -39,7 +43,8 @@ var login = Class({
 						username: ":sandbox input[name='username']",
 						password: ":sandbox input[name='password']",
 						showPassword: ':sandbox .show-password',
-						btnLogin: ':sandbox #btn-login'
+						btnLogin: ':sandbox #btn-login',
+						btnGoogle: ':sandbox #btn-google'
 					})
 					.bindNode('showPassword', ':bound(password)', {
 						getValue: null,
@@ -50,9 +55,16 @@ var login = Class({
 					.on('click::btnLogin', function (evt) {
 						evt.preventDefault();
 						this.send();
+					})
+					.on('click::btnGoogle', function (evt) {
+						evt.preventDefault();
+						this.google();
 					});
 				loginFormValidation();
 			});
+	},
+	google:function () {
+		window.open('/auth/google');
 	},
 	send: function () {
 		$('#login-form').data('formValidation').validate();
