@@ -27,6 +27,9 @@ var profile = Class({
 			<a id="close-all" href="close-all">Close All</a>
 			</span>
 		</div>
+		<div class="row">
+				<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp;<a id="remove-user" href="remove-user">Remove User</a>
+		</div>
 		</div>
 		<form id="profile-form" class="hidden">
 		<div class="row only-pass">
@@ -105,13 +108,37 @@ var profile = Class({
 				.bindNode({closeAll: ':sandbox #close-all'})
 				.on('click::closeAll', (evt) => {
 					evt.preventDefault();
-					evt.preventDefault();
 					session.authAjax('POST', '/auth/logout-all')
 						.then(()=> {
 							this.getProfile(session);
 						});
 				})
 				.bindNode({closeOthers: ':sandbox #close-others'})
+				.on('click::closeOthers', (evt) => {
+					evt.preventDefault();
+					session.authAjax('POST', '/auth/logout-others')
+						.then(()=> {
+							this.getProfile(session);
+						});
+				})
+				.bindNode({removeUser: ':sandbox #remove-user'})
+				.on('click::removeUser', (evt) => {
+					evt.preventDefault();
+					if (session.user_id == prompt("All your data will be destroyed. If You are really sure, type your username and press OK", '')) {
+						session.authAjax('POST', '/user/destroy')
+							.then(()=> {
+								let m = "User " + session.user_id + " removed";
+								session.trigger('kickedEvent',m,true);
+							});
+					} else {
+						noti.createNoti({
+							message: 'User deletion was canceled.',
+							type: "warning",
+							showDuration: 2
+						})
+					}
+
+				})
 				.bindNode('mode', '#profile-form', {
 					getValue: null,
 					setValue: function (v) {
@@ -135,13 +162,6 @@ var profile = Class({
 					setValue: function (v) {
 						$(this).toggleClass('hidden', v != 'editEmail');
 					}
-				})
-				.on('click::closeOthers', (evt) => {
-					evt.preventDefault();
-					session.authAjax('POST', '/auth/logout-others')
-						.then(()=> {
-							this.getProfile(session);
-						});
 				})
 				.bindNode({
 					btnCancel: ':sandbox .btn-cancel',

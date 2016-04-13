@@ -3,3 +3,8 @@ install Redis https://github.com/MSOpenTech/redis/releases/download/win-2.8.2400
 set maxheap 1gb in redis.windows-service.conf
 npm start
 visit http://localhost:3000/login
+
+в F:\matreshka-demo\node_modules\passport-vkontakte\node_modules\passport-oauth2\lib\strategy.js
+добавлена строчка 174
+ if (params && params.email) profile.emails = [{value:params.email}];///////////////edited by Alexchetv
+ для того чтобы получать email из вконтакте

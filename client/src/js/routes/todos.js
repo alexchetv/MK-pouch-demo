@@ -94,10 +94,16 @@ var Todos = Class({
 	wipeOut:function(){
 		this.dataSource.stopSync();
 		this.dataSource.change.cancel();
+		this.dataSource.replicateMemoryToDisk.cancel();
 		this.dataSource.remoteDb = null;
-		this.dataSource.db = null;
 		this.dataSource.diskDb = null;
-		this.dataSource = null;
+		this.dataSource.db.destroy()
+			.then(()=>{
+				this.dataSource.db = null;
+				this.dataSource = null;
+		});
+
+
 	}
 });
 module.exports = Todos;

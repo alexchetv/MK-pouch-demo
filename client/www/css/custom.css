@@ -36,7 +36,7 @@
     color: green;
 }
 
-.fa-minus-circle {
+.fa-minus-circle, .fa-exclamation-triangle {
     color: red;
 }
 

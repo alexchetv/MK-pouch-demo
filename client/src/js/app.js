@@ -62,11 +62,11 @@ var Application = Class({
 				}
 			})
 			/*.bindNode('session.user_id', ':sandbox .loggedin-disabled', {
-				getValue: null,
-				setValue: function (v) {
-					$(this).toggleClass('disabled', !!v);
-				}
-			})*/
+			 getValue: null,
+			 setValue: function (v) {
+			 $(this).toggleClass('disabled', !!v);
+			 }
+			 })*/
 			.linkProps('online', [
 				Offline, 'state'
 			], function (a) {
@@ -109,15 +109,15 @@ var Application = Class({
 				this.routes.set('current', 'login', {attach: data});
 			})
 			.on('session@kickedEvent',
-			(message = null,destroy = false)=> {
-				console.log('session@kickedEvent',message);
+			(message = null, destroy = false)=> {
+				console.log('session@kickedEvent', message);
 				let user_id = this.session.user_id;
 				//очищаем сессию
 				this.session.each((value, key) => {
 					this.session[key] = '';
 				})
 				//сохраняем текущую страницу
-				if (this.routes && this.routes.current!='login') this.savedCurrent = this.routes.current;
+				if (this.routes && this.routes.current != 'login') this.savedCurrent = this.routes.current;
 				//переходим на login
 				if (this.routes) this.routes.current = 'login';
 				//информируем
@@ -128,11 +128,14 @@ var Application = Class({
 						showDuration: 2
 					})
 				}
-				//уничтожаем локальную базу если надо
+				//уничтожаем локальные базы если надо
 				if (destroy) {
 					new PouchDB('todos_' + user_id).destroy().then(()=> {
 						console.log('destroy todos_' + user_id);
-					})
+					});
+					/*new PouchDB('todos_' + user_id + '_mem',{adapter: 'memory',}).destroy().then(()=> {
+						console.log('destroy todos_' + user_id);
+					})*/
 				}
 			})
 			.on('routes.*@wantPage', (data)=> {
@@ -140,10 +143,30 @@ var Application = Class({
 				this.routes.current = data.substr(1);
 			})
 			.parseBindings();
+	},
+	oauthSession: function (error, session, link) {
 
+		if (error) {
+			console.error('OAUTH', error);
+			noti.createNoti({
+				message: error,
+				type: "error",
+				showDuration: 2
+			})
+		} else {
+			console.log('OAUTH', session, link)
+			this.session.jset(session);
+			this.routes.current = this.savedCurrent ? this.savedCurrent : 'todos';
+			noti.createNoti({
+				message: "Welcome " + session.user_id + "!",
+				type: "success",
+				showDuration: 2
+			})
+		}
 	}
 });
+
 Offline.options = {requests: false};
 Offline.check();
 makePopover();
-var app = new Application();
+window.superlogin = new Application();

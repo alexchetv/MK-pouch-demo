@@ -9,11 +9,12 @@ var bodyParser = require('body-parser');
 var SuperLogin = require('superlogin');
 var superloginConfig = require('./superlogin.config.js');
 
-var WindowsliveStrategy = require('passport-windowslive').Strategy;
+//var WindowsliveStrategy = require('passport-windowslive').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 var GitHubStrategy = require('passport-github').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
-var LinkedinStrategy = require('passport-linkedin-oauth2').Strategy;
+//var LinkedinStrategy = require('passport-linkedin-oauth2').Strategy;
+var VKontakteStrategy = require('passport-vkontakte').Strategy;
 
 
 var app = express();
@@ -31,16 +32,18 @@ app.use(logger('dev'));
 
 // load SuperLogin routes
 var superlogin = new SuperLogin(superloginConfig);
-if(superlogin.config.getItem('providers.windowslive.credentials.clientID'))
-  superlogin.registerOAuth2('windowslive', WindowsliveStrategy);
+//if(superlogin.config.getItem('providers.windowslive.credentials.clientID'))
+//  superlogin.registerOAuth2('windowslive', WindowsliveStrategy);
 if(superlogin.config.getItem('providers.facebook.credentials.clientID'))
   superlogin.registerOAuth2('facebook', FacebookStrategy);
 if(superlogin.config.getItem('providers.github.credentials.clientID'))
   superlogin.registerOAuth2('github', GitHubStrategy);
 if(superlogin.config.getItem('providers.google.credentials.clientID'))
   superlogin.registerOAuth2('google', GoogleStrategy);
-if(superlogin.config.getItem('providers.linkedin.credentials.clientID'))
-  superlogin.registerOAuth2('linkedin', LinkedinStrategy);
+//if(superlogin.config.getItem('providers.linkedin.credentials.clientID'))
+//  superlogin.registerOAuth2('linkedin', LinkedinStrategy);
+if(superlogin.config.getItem('providers.vkontakte.credentials.clientID'))
+	superlogin.registerOAuth2('vkontakte', VKontakteStrategy);
 app.use('/auth', superlogin.router);
 
 var Profile = require('./profile');

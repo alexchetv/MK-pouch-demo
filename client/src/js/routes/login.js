@@ -28,6 +28,15 @@ var login = Class({
 	</form>
 	<div class="row">
 			<input class="button-primary" id="btn-google" type="button" value="Google"/>
+		</div>
+		<div class="row">
+			<input class="button-primary" id="btn-facebook" type="button" value="Facebook"/>
+		</div>
+		<div class="row">
+			<input class="button-primary" id="btn-github" type="button" value="Github"/>
+		</div>
+		<div class="row">
+			<input class="button-primary" id="btn-vkontakte" type="button" value="ВКонтакте"/>
 		</div>`,
 	constructor: function (session,attach) {
 		this.setTitle();
@@ -44,7 +53,10 @@ var login = Class({
 						password: ":sandbox input[name='password']",
 						showPassword: ':sandbox .show-password',
 						btnLogin: ':sandbox #btn-login',
-						btnGoogle: ':sandbox #btn-google'
+						btnGoogle: ':sandbox #btn-google',
+						btnFacebook: ':sandbox #btn-facebook',
+						btnGithub: ':sandbox #btn-github',
+						btnVkontakte: ':sandbox #btn-vkontakte'
 					})
 					.bindNode('showPassword', ':bound(password)', {
 						getValue: null,
@@ -59,12 +71,33 @@ var login = Class({
 					.on('click::btnGoogle', function (evt) {
 						evt.preventDefault();
 						this.google();
-					});
+					})
+					.on('click::btnFacebook', function (evt) {
+						evt.preventDefault();
+						this.facebook();
+					})
+					.on('click::btnGithub', function (evt) {
+						evt.preventDefault();
+						this.github();
+					})
+				.on('click::btnVkontakte', function (evt) {
+					evt.preventDefault();
+					this.vkontakte();
+				});
 				loginFormValidation();
 			});
 	},
 	google:function () {
 		window.open('/auth/google');
+	},
+	facebook:function () {
+		window.open('/auth/facebook');
+	},
+	github:function () {
+		window.open('/auth/github');
+	},
+	vkontakte:function () {
+		window.open('/auth/vkontakte');
 	},
 	send: function () {
 		$('#login-form').data('formValidation').validate();

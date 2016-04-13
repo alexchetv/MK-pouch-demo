@@ -97,6 +97,15 @@ module.exports = {
         clientID: process.env.LINKEDIN_CLIENTID,
         clientSecret: process.env.LINKEDIN_CLIENTSECRET
       }
-    }
+    },
+	  vkontakte: {
+		  credentials: {
+			  clientID: process.env.VKONTAKTE_CLIENTID,
+			  clientSecret: process.env.VKONTAKTE_CLIENTSECRET,
+			  apiVersion : "5.32",
+			  scope: ['email'],
+			  profileFields: ['email']
+		  }
+	  }
   }
 };

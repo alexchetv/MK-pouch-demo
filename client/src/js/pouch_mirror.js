@@ -22,7 +22,7 @@ var PouchMirror = Class({
 		if (data.remote) this.set('remoteDb', new PouchDB(data.remote, data.remoteOptions));
 		// First copy the diskDb to memory, and then sync changes in memory to diskDb
 		this.diskDb.replicate.to(this.db).then(() => {
-			this.db.replicate.to(this.diskDb, {live: true});
+			this.replicateMemoryToDisk = this.db.replicate.to(this.diskDb, {live: true});
 			this.db.allDocs({
 				include_docs: true,
 				attachments: true,
