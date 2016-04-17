@@ -3,9 +3,9 @@ var Page = require('./page');
 var registerFormValidation = require('../validation/register-form');
 var register = Class({
 	'extends': Page,
-	title:'Register',
+	title:'Sign Up',
 	renderer:`<form id="register-form">
-		<h4>Register form</h4>
+		<h4>Sign up</h4>
 
 		<div class="row">
 			<label>Username</label>
@@ -16,7 +16,13 @@ var register = Class({
 			<input class="u-full-width" name="email" type="text" placeholder="Email"/>
 		</div>
 		<div class="row">
-			<label>Password</label>
+			<label class="u-pull-left">
+				<span>Password</span>
+			</label>
+			<div class="u-pull-right">
+					<input type="checkbox" class="show-password"/>
+					<span>Show</span>
+				</div>
 			<input class="u-full-width" name="password" type="password" placeholder="Password"/>
 		</div>
 		<div class="row">
@@ -24,14 +30,8 @@ var register = Class({
 			<input class="u-full-width" name="confirm" type="password" placeholder="Confirm Password"/>
 		</div>
 		<div class="row">
-			<label>
-				<input type="checkbox" class="show-password"/>
-				<span class="label-body">Show Password</span>
-			</label>
-		</div>
-		<div class="row">
-			<div class="four columns">
-				<input class="button-primary" id="btn-register" type="submit" value="Register"/>
+			<div class="u-pull-right">
+				<input class="button-primary" id="btn-register" type="submit" value="Sign up"/>
 			</div>
 		</div>
 	</form>`,

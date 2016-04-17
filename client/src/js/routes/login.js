@@ -4,39 +4,37 @@ var Page = require('./page');
 
 var login = Class({
 	'extends': Page,
-	title:'Login',
+	title:'Log In',
 	renderer:
 		`<form id="login-form">
-		<h4>Login form</h4>
+		<h4>Log in with username and password</h4>
 		<div class="row">
 			<label>Username</label>
 			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
 		</div>
 		<div class="row">
-			<label>Password</label>
+			<label class="u-pull-left">
+				<span>Password</span>
+			</label>
+			<div class="u-pull-right">
+					<input type="checkbox" class="show-password"/>
+					<span>Show</span>
+				</div>
 			<input class="u-full-width" name="password" type="password" placeholder="Password"/>
 		</div>
 		<div class="row">
-			<label>
-				<input type="checkbox" class="show-password"/>
-				<span class="label-body">Show Password</span>
-			</label>
-		</div>
-		<div class="row">
-			<input class="button-primary" id="btn-login" type="submit" value="Login"/>
+			<a id="forgot-password" href="/forgot">Forgot Password</a>
+			<div class="u-pull-right">
+				<input class="button-primary" id="btn-login" type="submit" value="Log in"/>
+			</div>
 		</div>
 	</form>
+	<h4>Log in with social</h4>
 	<div class="row">
-			<input class="button-primary" id="btn-google" type="button" value="Google"/>
-		</div>
-		<div class="row">
-			<input class="button-primary" id="btn-facebook" type="button" value="Facebook"/>
-		</div>
-		<div class="row">
-			<input class="button-primary" id="btn-github" type="button" value="Github"/>
-		</div>
-		<div class="row">
-			<input class="button-primary" id="btn-vkontakte" type="button" value="ВКонтакте"/>
+			<button class="square" data-social="google"><i class="fa fa-google fa-2x" title="Google"></i></button>
+			<button class="square" data-social="facebook"><i class="fa fa-facebook fa-2x" title="Facebook"></i></button>
+			<button class="square" data-social="github"><i class="fa fa-github fa-2x" title="Github"></i></button>
+			<button class="square" data-social="vkontakte"><i class="fa fa-vk fa-2x" title="VK"></i></button>
 		</div>`,
 	constructor: function (session,attach) {
 		this.setTitle();
@@ -52,12 +50,14 @@ var login = Class({
 						username: ":sandbox input[name='username']",
 						password: ":sandbox input[name='password']",
 						showPassword: ':sandbox .show-password',
-						btnLogin: ':sandbox #btn-login',
-						btnGoogle: ':sandbox #btn-google',
-						btnFacebook: ':sandbox #btn-facebook',
-						btnGithub: ':sandbox #btn-github',
-						btnVkontakte: ':sandbox #btn-vkontakte'
+						btnLogin: ':sandbox #btn-login'
 					})
+					.bindNode('btnSocial', ':sandbox [data-social]', {
+						on: 'click',
+						getValue: function () {
+							window.open('/auth/' + $(this).attr('data-social'));
+						}
+					}, {assignDefaultValue: false})
 					.bindNode('showPassword', ':bound(password)', {
 						getValue: null,
 						setValue: function (v) {
@@ -67,37 +67,9 @@ var login = Class({
 					.on('click::btnLogin', function (evt) {
 						evt.preventDefault();
 						this.send();
-					})
-					.on('click::btnGoogle', function (evt) {
-						evt.preventDefault();
-						this.google();
-					})
-					.on('click::btnFacebook', function (evt) {
-						evt.preventDefault();
-						this.facebook();
-					})
-					.on('click::btnGithub', function (evt) {
-						evt.preventDefault();
-						this.github();
-					})
-				.on('click::btnVkontakte', function (evt) {
-					evt.preventDefault();
-					this.vkontakte();
-				});
+					});
 				loginFormValidation();
 			});
-	},
-	google:function () {
-		window.open('/auth/google');
-	},
-	facebook:function () {
-		window.open('/auth/facebook');
-	},
-	github:function () {
-		window.open('/auth/github');
-	},
-	vkontakte:function () {
-		window.open('/auth/vkontakte');
 	},
 	send: function () {
 		$('#login-form').data('formValidation').validate();
@@ -113,11 +85,7 @@ var login = Class({
 				.done((data) =>
 				{
 					this.trigger('loginEvent', data);
-					noti.createNoti({
-						message: "Welcome "+data.user_id+"!",
-						type: "success",
-						showDuration: 2
-					})
+					noti.show("Welcome "+data.user_id + "!","success");
 				})
 		.fail(function (answer) {
 				console.log('login fail', answer);
@@ -130,7 +98,7 @@ var login = Class({
 					message: message,
 					type: "error",
 					showDuration: 2,
-					//это делает кнопку доступной (почему?)
+					//это делает кнопку доступной (почему то?)
 					onHide: function() {
 						$('#login-form').data('formValidation').revalidateField('username');
 					}

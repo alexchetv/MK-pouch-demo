@@ -6,7 +6,7 @@ module.exports = {
   },
   security: {
     maxFailedLogins: 3,
-	  sessionLife: 60,
+	  sessionLife: 60*60*24,
   },
   local: {
     sendConfirmEmail: true,

@@ -284,3 +284,11 @@ a[data-popover]{
     background-color: #d9edf7;
     border-color: #bce8f1;
 }
+button.square {
+    width: 38px;
+    padding: 0;
+}
+
+button.square i{
+    vertical-align: middle;
+}

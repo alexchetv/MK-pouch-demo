@@ -9,12 +9,12 @@ var profile = Class({
 		<h4>Profile</h4>
 		<div id="view">
 		<div class="row">
-			<span>Email (confirmed) <strong>{{email}}</strong></span>
-			<a class="u-pull-right" id="edit-email" href="edit-email">{{addOrEdit}}</a>
+			<span>Email <strong>{{emailText}}</strong></span>
+			<a class="u-pull-right" id="edit-email" href="edit-email">{{emailPrompt}}</a>
 		</div>
 		<div class="row">
-			<span>Password <strong>******</strong></span>
-			<a class="u-pull-right" id="edit-password" href="edit-password">Change</a>
+			<span>Password <strong>{{passwordText}}</strong></span>
+			<a class="u-pull-right" id="edit-password" href="edit-password">{{passwordPrompt}}</a>
 		</div>
 		<div class="row">
 			<span>Current session expired <strong>{{sessionExpired}}</strong></span>
@@ -32,7 +32,7 @@ var profile = Class({
 		</div>
 		</div>
 		<form id="profile-form" class="hidden">
-		<div class="row only-pass">
+		<div class="row only-local">
 			<label>Current Password</label>
 			<input class="u-full-width" name="current" type="password" placeholder="Current Password"/>
 		</div>
@@ -66,7 +66,8 @@ var profile = Class({
 		this
 			.set({
 				mode: 'view',
-				newEmail: ''
+				newEmail: '',
+				providers: []
 			})
 			.jset({
 				currentPassword: '',
@@ -82,13 +83,25 @@ var profile = Class({
 				function (a) {
 					return (a ? new Date(a).toLocaleString() : '')
 				})
-				.linkProps('addOrEdit', 'email',
+				.linkProps('emailPrompt', 'email',
 				function (a) {
-					return (a ? 'Change' : 'Add')
+					return (a ? 'Change' : 'Enter')
 				})
-				.linkProps('manySessions', 'sessions',
+				.linkProps('emailText', 'email',
 				function (a) {
-					return (a > 1);
+					return (a ? a : 'Not entered or not confirmed yet')
+				})
+				.linkProps('local', 'providers',
+				function (a) {
+					return (a.indexOf('local') > -1);
+				})
+				.linkProps('passwordText', 'local',
+				function (a) {
+					return (a ? '***hidden***' : 'Not entered');
+				})
+				.linkProps('passwordPrompt', 'local',
+				function (a) {
+					return (a ? 'Change' : 'Enter');
 				})
 				.bindNode({refresh: ':sandbox #refr'})
 				.on('click::refresh', (evt) => {
@@ -104,12 +117,14 @@ var profile = Class({
 				.on('click::editPassword', (evt) => {
 					evt.preventDefault();
 					this.set('mode', 'editPassword');
+					this.set('submode', 'editPassword');
 				})
 				.bindNode({closeAll: ':sandbox #close-all'})
 				.on('click::closeAll', (evt) => {
 					evt.preventDefault();
 					session.authAjax('POST', '/auth/logout-all')
 						.then(()=> {
+							//это автоматически приведет к выходу
 							this.getProfile(session);
 						});
 				})
@@ -161,6 +176,12 @@ var profile = Class({
 					getValue: null,
 					setValue: function (v) {
 						$(this).toggleClass('hidden', v != 'editEmail');
+					}
+				})
+				.bindNode('local', '.only-local', {
+					getValue: null,
+					setValue: function (v) {
+						$(this).toggleClass('hidden', !v);
 					}
 				})
 				.bindNode({
@@ -215,6 +236,7 @@ var profile = Class({
 	saveEmail: function (session) {
 		session.authAjax('POST', '/auth/change-email', JSON.stringify({newEmail:this.newEmail}))
 			.done((data) => {
+				this.getProfile(session);
 				this.cancel();
 				noti.createNoti({
 					message: "Email changed. Please confirm your new email address",
@@ -229,6 +251,7 @@ var profile = Class({
 	savePassword: function (session) {
 		session.authAjax('POST', '/auth/password-change', JSON.stringify(this.toJSON()))
 			.done((data) => {
+				this.getProfile(session);
 				this.cancel();
 				noti.createNoti({
 					message: "Password successfully changed",

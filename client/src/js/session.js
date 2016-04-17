@@ -39,7 +39,7 @@ var Session = Class({
 				.fail((answer) => {
 					if (answer.status == 401) {
 						//нас успели выкинуть
-						this.trigger('kickedEvent', 'Sorry! Your Session expired!');
+						this.trigger('kickedEvent', 'Sorry! Your Session closed!');
 					} else {
 						let message = "Error something is wrong";
 						if (answer.responseJSON && answer.responseJSON.message) {
@@ -57,12 +57,17 @@ var Session = Class({
 			return $.Deferred().reject({responseJSON: {message: 'Token and password required'}});
 		}
 	},
-logout: function(message = null,destroy = false) {
-		//logout on server
-		this.authAjax('POST','/auth/logout')
-			.then(()=>{
-				this.trigger('kickedEvent', message,destroy);
-			});
+	login: function(message = null,destroy = false) {
+		//выходим на сервере
+		this.authAjax('POST','/auth/logout');
+		//и независимо от этого локально
+		this.trigger('kickedEvent', message, destroy);
+	},
+	logout: function(message = null,destroy = false) {
+		//выходим на сервере
+		this.authAjax('POST','/auth/logout');
+		//и независимо от этого локально
+		this.trigger('kickedEvent', message, destroy);
 	},
 
 	//запрос на обновление сессии

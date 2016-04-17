@@ -145,7 +145,6 @@ var Application = Class({
 			.parseBindings();
 	},
 	oauthSession: function (error, session, link) {
-
 		if (error) {
 			console.error('OAUTH', error);
 			noti.createNoti({
@@ -157,11 +156,7 @@ var Application = Class({
 			console.log('OAUTH', session, link)
 			this.session.jset(session);
 			this.routes.current = this.savedCurrent ? this.savedCurrent : 'todos';
-			noti.createNoti({
-				message: "Welcome " + session.user_id + "!",
-				type: "success",
-				showDuration: 2
-			})
+			noti.show("Welcome "+session.user_id + "!","success");
 		}
 	}
 });
