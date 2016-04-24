@@ -9,8 +9,11 @@ var profile = Class({
 		<h4>Profile</h4>
 		<div id="view">
 		<div class="row">
-			<span>Email <strong>{{emailText}}</strong></span>
-			<a class="u-pull-right" id="edit-email" href="edit-email">{{emailPrompt}}</a>
+			<span>Email <strong>{{email}}</strong></span>
+		</div>
+		<div class="row">
+			<span>Name <strong>{{name}}</strong></span>
+			<a class="u-pull-right" id="edit-name" href="edit-name">Change</a>
 		</div>
 		<div class="row">
 			<span>Password <strong>{{passwordText}}</strong></span>
@@ -32,7 +35,7 @@ var profile = Class({
 		</div>
 		</div>
 		<form id="profile-form" class="hidden">
-		<div class="row only-local">
+		<div class="row only-local only-pass">
 			<label>Current Password</label>
 			<input class="u-full-width" name="current" type="password" placeholder="Current Password"/>
 		</div>
@@ -50,9 +53,9 @@ var profile = Class({
 				<span class="label-body">Show Password</span>
 			</label>
 		</div>
-		<div class="row only-email">
-			<label>New Email</label>
-			<input class="u-full-width" name="email" type="text" placeholder="New Email"/>
+		<div class="row only-name">
+			<label>New Name</label>
+			<input class="u-full-width" name="name" type="text" placeholder="New Name"/>
 		</div>
 		<div class="row">
 			<div class="u-pull-right">
@@ -66,7 +69,7 @@ var profile = Class({
 		this
 			.set({
 				mode: 'view',
-				newEmail: '',
+				newName: '',
 				providers: []
 			})
 			.jset({
@@ -76,20 +79,12 @@ var profile = Class({
 			});
 		this.getProfile(session);
 		this.on('afterrender', () => {
-			this.setTitle(session.user_id);
+			this.setTitle(session.name);
 			this
 				.linkProps(
 				'sessionExpired', [session, 'expires'],
 				function (a) {
 					return (a ? new Date(a).toLocaleString() : '')
-				})
-				.linkProps('emailPrompt', 'email',
-				function (a) {
-					return (a ? 'Change' : 'Enter')
-				})
-				.linkProps('emailText', 'email',
-				function (a) {
-					return (a ? a : 'Not entered or not confirmed yet')
 				})
 				.linkProps('local', 'providers',
 				function (a) {
@@ -108,16 +103,15 @@ var profile = Class({
 					evt.preventDefault();
 					session.refresh();
 				})
-				.bindNode({editEmail: ':sandbox #edit-email'})
-				.on('click::editEmail', (evt) => {
+				.bindNode({editName: ':sandbox #edit-name'})
+				.on('click::editName', (evt) => {
 					evt.preventDefault();
-					this.set('mode', 'editEmail');
+					this.set('mode', 'editName');
 				})
 				.bindNode({editPassword: ':sandbox #edit-password'})
 				.on('click::editPassword', (evt) => {
 					evt.preventDefault();
 					this.set('mode', 'editPassword');
-					this.set('submode', 'editPassword');
 				})
 				.bindNode({closeAll: ':sandbox #close-all'})
 				.on('click::closeAll', (evt) => {
@@ -139,10 +133,10 @@ var profile = Class({
 				.bindNode({removeUser: ':sandbox #remove-user'})
 				.on('click::removeUser', (evt) => {
 					evt.preventDefault();
-					if (session.user_id == prompt("All your data will be destroyed. If You are really sure, type your username and press OK", '')) {
+					if (session.name == prompt("All your data will be destroyed. If You are really sure, type your name and press OK", '')) {
 						session.authAjax('POST', '/user/destroy')
 							.then(()=> {
-								let m = "User " + session.user_id + " removed";
+								let m = "User " + session.name + " removed";
 								session.trigger('kickedEvent',m,true);
 							});
 					} else {
@@ -172,10 +166,10 @@ var profile = Class({
 						$(this).toggleClass('hidden', v != 'editPassword');
 					}
 				})
-				.bindNode('mode', '.only-email', {
+				.bindNode('mode', '.only-name', {
 					getValue: null,
 					setValue: function (v) {
-						$(this).toggleClass('hidden', v != 'editEmail');
+						$(this).toggleClass('hidden', v != 'editName');
 					}
 				})
 				.bindNode('local', '.only-local', {
@@ -191,7 +185,7 @@ var profile = Class({
 					confirmPassword: ":sandbox input[name='confirm']",
 					showPassword: ':sandbox .show-password',
 					btnSave: ':sandbox #btn-save',
-					newEmail: ":sandbox input[name='email']"
+					newName: ":sandbox input[name='name']"
 				})
 				.bindNode('showPassword', ":sandbox [name='password'],[name='confirm'],[name='current']", {
 					getValue: null,
@@ -206,7 +200,7 @@ var profile = Class({
 						if (this.mode == 'editPassword') {
 							this.savePassword(session);
 						} else {
-							this.saveEmail(session);
+							this.saveName(session);
 						}
 					}
 				})
@@ -227,25 +221,21 @@ var profile = Class({
 			currentPassword: '',
 			newPassword: '',
 			confirmPassword: '',
-			newEmail: '',
+			newName: '',
 			showPassword: false,
 			mode:'view'
 		});
 
 	},
-	saveEmail: function (session) {
-		session.authAjax('POST', '/auth/change-email', JSON.stringify({newEmail:this.newEmail}))
+	saveName: function (session) {
+		session.authAjax('POST', '/user/change-name', JSON.stringify({newName:this.newName}))
 			.done((data) => {
 				this.getProfile(session);
 				this.cancel();
-				noti.createNoti({
-					message: "Email changed. Please confirm your new email address",
-					type: "warning",
-					showDuration: 5
-				})
+				noti.show("Name changed","success");
 			})
 			.fail((answer) => {
-				console.error('emailChange fail', answer);
+				console.error('nameChange fail', answer);
 			});
 	},
 	savePassword: function (session) {
@@ -268,6 +258,8 @@ var profile = Class({
 			.done((data) => {
 				console.log('getProfile', data);
 				this.jset(data);
+				session.name = data.name;
+				this.setTitle(session.name);
 			})
 			.fail((answer) => {
 				console.error('getProfile fail', answer);

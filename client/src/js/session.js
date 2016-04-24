@@ -6,6 +6,7 @@ var Session = Class({
 		console.log('session creating', data);
 		this
 			.jset('user_id', null)
+			.set('name', '')
 			.jset(data)
 			.onDebounce('change', ()=> {
 				console.log('session change', this);
@@ -21,7 +22,7 @@ var Session = Class({
 				evt.preventDefault();
 				this.logout(null, true);
 			});
-		this.parseBindings($('#session'));
+		this.parseBindings('#session');
 	},
 	//запрос на сервер с авторизацией
 	authAjax: function (type, url,data) {
@@ -76,9 +77,17 @@ var Session = Class({
 			.done((data) => {
 				console.log('REFRESH', data);
 				this.jset(data);
+				//дополнительно запрашиваем имя
+				this.authAjax('GET', '/user/profile')
+					.done((data) => {
+						this.name = data.name;
+					})
+					.fail((answer) => {
+						console.error('getProfile fail', answer);
+					});
 			})
 			.fail((answer) => {
-				console.log('fail', answer);
+				console.error('fail', answer);
 			});
 	},
 });

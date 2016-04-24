@@ -40,8 +40,6 @@ if(superlogin.config.getItem('providers.github.credentials.clientID'))
   superlogin.registerOAuth2('github', GitHubStrategy);
 if(superlogin.config.getItem('providers.google.credentials.clientID'))
   superlogin.registerOAuth2('google', GoogleStrategy);
-//if(superlogin.config.getItem('providers.linkedin.credentials.clientID'))
-//  superlogin.registerOAuth2('linkedin', LinkedinStrategy);
 if(superlogin.config.getItem('providers.vkontakte.credentials.clientID'))
 	superlogin.registerOAuth2('vkontakte', VKontakteStrategy);
 app.use('/auth', superlogin.router);

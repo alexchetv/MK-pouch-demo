@@ -21,23 +21,15 @@ var profileFormValidation = function() {
 					}
 				}
 			},
-			email: {
-				verbose: false,
+			name: {
 				validators: {
 					notEmpty: {
-						message: 'The email is required'
+						message: 'The name is required'
 					},
-					regexp: {
-						regexp: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/,
-						message: 'The email address is not valid'
-					},
-					remote: {
-						validKey: 'ok',
-						message: 'The email is not available',
-						url: function (validator) {
-							return '/auth/validate-email/' + validator.getFieldElements('email').val();
-						},
-						type: 'GET'
+					stringLength: {
+						min: 3,
+						max: 50,
+						message: 'The name must be more than 3 and less than 50 characters long'
 					}
 				}
 			},

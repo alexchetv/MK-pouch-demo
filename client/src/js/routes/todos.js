@@ -12,7 +12,7 @@ var Todos = Class({
 	<ul id="todo-list"></ul>`,
 	Model: Todo,
 	constructor: function (session) {
-		this.setTitle(session.user_id);
+		this.setTitle(session.name);
 		this.set('DBs', session.userDBs);
 		if (this.DBs.todos) {
 			this.set('dataSource', new PouchMirror(

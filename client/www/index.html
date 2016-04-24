@@ -44,7 +44,7 @@
 	<script src="/lib/pouchdb/pouchdb-5.3.1.js"></script>
 	<script src="/lib/pouchdb/pouchdb.memory.js"></script>
 
-	<script src="/lib/Matreshka/matreshka.min.js"></script>
+	<script src="/lib/matreshka-1.8.1/matreshka.min.js"></script>
 	<script src="/lib/matreshka-router/matreshka-router.js"></script>
 
 	<!-- Favicon
@@ -63,7 +63,7 @@
 			<a class="page-link not-loggedin-disabled" href="/todos">Todos</a>
 		</div>
 		<div id="session" class="u-pull-right not-loggedin-hidden">
-			<a data-popover="#user-popover" class="u-pull-right">{{user_id}}</a>
+			<a data-popover="#user-popover" class="u-pull-right">{{name}}</a>
 			<ul id="user-popover" class="popover">
 				<li class="page-wrap"><a class="page-link" href="/profile">Profile</a></li>
 				<li><a href="/logout" id="logout">Log out</a></li>

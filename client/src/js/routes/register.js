@@ -8,8 +8,8 @@ var register = Class({
 		<h4>Sign up</h4>
 
 		<div class="row">
-			<label>Username</label>
-			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
+			<label>Name</label>
+			<input class="u-full-width" name="name" type="text" placeholder="Name"/>
 		</div>
 		<div class="row">
 			<label>Email</label>
@@ -39,7 +39,7 @@ var register = Class({
 		this.setTitle();
 		this
 			.jset({
-				username: '',
+				name: '',
 				password: '',
 				confirmPassword: '',
 				email: ''
@@ -48,7 +48,7 @@ var register = Class({
 				console.log('register render', evt);
 				this
 					.bindNode({
-						username: ":sandbox input[name='username']",
+						name: ":sandbox input[name='name']",
 						email: ":sandbox input[name='email']",
 						password: ":sandbox input[name='password']",
 						confirmPassword: ":sandbox input[name='confirm']",
@@ -80,12 +80,7 @@ var register = Class({
 				dataType: "json"
 			})
 				.done((data) => {
-					this.trigger('registerEvent', {name:this.username,pass:this.password});
-					noti.createNoti({
-						message: "You have successfully registered and can login now",
-						type: "success",
-						showDuration: 2
-					})
+					this.trigger('registerEvent');
 				})
 				.fail(function (answer) {
 					let message = "Error something is wrong";
@@ -98,7 +93,7 @@ var register = Class({
 						showDuration: 2,
 						//это делает кнопку доступной (почему?)
 						onHide: function() {
-							$('#register-form').data('formValidation').revalidateField('username');
+							$('#register-form').data('formValidation').revalidateField('name');
 						}
 					})
 				});

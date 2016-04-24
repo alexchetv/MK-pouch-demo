@@ -7,10 +7,10 @@ var login = Class({
 	title:'Log In',
 	renderer:
 		`<form id="login-form">
-		<h4>Log in with username and password</h4>
+		<h4>Log in with email and password</h4>
 		<div class="row">
-			<label>Username</label>
-			<input class="u-full-width" name="username" type="text" placeholder="Username"/>
+			<label>Email</label>
+			<input class="u-full-width" name="email" type="text" placeholder="your.email@example.com"/>
 		</div>
 		<div class="row">
 			<label class="u-pull-left">
@@ -20,7 +20,7 @@ var login = Class({
 					<input type="checkbox" class="show-password"/>
 					<span>Show</span>
 				</div>
-			<input class="u-full-width" name="password" type="password" placeholder="Password"/>
+			<input class="u-full-width" name="password" type="password" placeholder="very.secret.word"/>
 		</div>
 		<div class="row">
 			<a id="forgot-password" href="/forgot">Forgot Password</a>
@@ -36,18 +36,18 @@ var login = Class({
 			<button class="square" data-social="github"><i class="fa fa-github fa-2x" title="Github"></i></button>
 			<button class="square" data-social="vkontakte"><i class="fa fa-vk fa-2x" title="VK"></i></button>
 		</div>`,
-	constructor: function (session,attach) {
+	constructor: function (session) {
 		this.setTitle();
 		this
 			.jset({
-				username: attach && attach.name ? attach.name : '',
-				password: attach && attach.pass ? attach.pass : ''
+				email: '',
+				password: ''
 			})
 			.on('afterrender', function (evt) {
 				console.log('login render', evt);
 				this
 					.bindNode({
-						username: ":sandbox input[name='username']",
+						email: ":sandbox input[name='email']",
 						password: ":sandbox input[name='password']",
 						showPassword: ':sandbox .show-password',
 						btnLogin: ':sandbox #btn-login'
@@ -85,7 +85,6 @@ var login = Class({
 				.done((data) =>
 				{
 					this.trigger('loginEvent', data);
-					noti.show("Welcome "+data.user_id + "!","success");
 				})
 		.fail(function (answer) {
 				console.log('login fail', answer);
@@ -100,7 +99,7 @@ var login = Class({
 					showDuration: 2,
 					//это делает кнопку доступной (почему то?)
 					onHide: function() {
-						$('#login-form').data('formValidation').revalidateField('username');
+						$('#login-form').data('formValidation').revalidateField('email');
 					}
 				})
 			});

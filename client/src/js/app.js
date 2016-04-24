@@ -100,13 +100,11 @@ var Application = Class({
 			.on('routes.*@loginEvent', (data)=> {
 				console.log('loginEvent', data);
 				//set session properties
-				this.session.jset(data);
-				this.routes.current = this.savedCurrent ? this.savedCurrent : 'todos';
+				this.handleLogin(data);
 			})
-			.on('routes.*@registerEvent', (data)=> {
-				console.log('registerEvent', data);
-				//Pass credentials of new user to login form
-				this.routes.set('current', 'login', {attach: data});
+			.on('routes.*@registerEvent', ()=> {
+				console.log('registerEvent');
+				this.routes.set('current', 'thanks');
 			})
 			.on('session@kickedEvent',
 			(message = null, destroy = false)=> {
@@ -144,6 +142,19 @@ var Application = Class({
 			})
 			.parseBindings();
 	},
+	handleLogin: function(data){
+		this.session.jset(data);
+		this.routes.current = this.savedCurrent ? this.savedCurrent : 'todos';
+		//дополнительно запрашиваем имя
+		this.session.authAjax('GET', '/user/profile')
+			.done((data) => {
+				this.session.name = data.name;
+				noti.show("Welcome "+this.session.name + "!","success");
+			})
+			.fail((answer) => {
+				console.error('getProfile fail', answer);
+			});
+	},
 	oauthSession: function (error, session, link) {
 		if (error) {
 			console.error('OAUTH', error);
@@ -154,9 +165,7 @@ var Application = Class({
 			})
 		} else {
 			console.log('OAUTH', session, link)
-			this.session.jset(session);
-			this.routes.current = this.savedCurrent ? this.savedCurrent : 'todos';
-			noti.show("Welcome "+session.user_id + "!","success");
+			this.handleLogin(session);
 		}
 	}
 });

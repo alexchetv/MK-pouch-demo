@@ -9,21 +9,16 @@ var loginFormValidation = function() {
 			feedback: 'fv-control-feedback'
 		},
 		fields: {
-			username: {
+			email: {
 				verbose: false,
 				validators: {
 					notEmpty: {
-						message: 'The username is required'
-					},
-					stringLength: {
-						min: 3,
-						max: 16,
-						message: 'The username must be more than 3 and less than 16 characters long'
+						message: 'The email is required'
 					},
 					regexp: {
-						regexp: /^[a-zA-Z0-9_-]+$/,
-						message: 'The username can only consist of alphabetical, number, underscore and hyphen'
-					}
+						regexp: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/,
+						message: 'The email address is not valid'
+					},
 				}
 			},
 			password: {

@@ -9,28 +9,16 @@ var registerFormValidation = function() {
 			feedback: 'fv-control-feedback'
 		},
 		fields: {
-			username: {
+			name: {
 				verbose: false,
 				validators: {
 					notEmpty: {
-						message: 'The username is required'
+						message: 'The name is required'
 					},
 					stringLength: {
 						min: 3,
-						max: 16,
-						message: 'The username must be more than 3 and less than 16 characters long'
-					},
-					regexp: {
-						regexp: /^[a-zA-Z0-9_-]+$/,
-						message: 'The username can only consist of alphabetical, number, underscore and hyphen'
-					},
-					remote: {
-						validKey: 'ok',
-						message: 'The username is not available',
-						url: function (validator) {
-							return '/auth/validate-username/' + validator.getFieldElements('username').val();
-						},
-						type: 'GET'
+						max: 50,
+						message: 'The name must be more than 3 and less than 50 characters long'
 					}
 				}
 			},

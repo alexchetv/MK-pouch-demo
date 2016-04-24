@@ -10,9 +10,11 @@ module.exports = {
   },
   local: {
     sendConfirmEmail: true,
-    requireEmailConfirm: false,
-    loginOnRegistration: true,
-    confirmEmailRedirectURL: '/confirm-email'
+    requireEmailConfirm: true,
+    loginOnRegistration: false,
+    confirmEmailRedirectURL: '/login',
+	  emailUsername: true,
+	  usernameField: 'email'
   },
   dbServer: {
     protocol: process.env.DB_HOST ? 'https://' : 'http://',
@@ -83,22 +85,7 @@ module.exports = {
         scope: ['user:email']
       }
     },
-    windowslive: {
-      credentials: {
-        clientID: process.env.WINDOWSLIVE_CLIENTID,
-        clientSecret: process.env.WINDOWSLIVE_CLIENTSECRET
-      },
-      options: {
-        scope: ['wl.signin', 'wl.basic', 'wl.emails']
-      }
-    },
-    linkedin: {
-      credentials: {
-        clientID: process.env.LINKEDIN_CLIENTID,
-        clientSecret: process.env.LINKEDIN_CLIENTSECRET
-      }
-    },
-	  vkontakte: {
+    vkontakte: {
 		  credentials: {
 			  clientID: process.env.VKONTAKTE_CLIENTID,
 			  clientSecret: process.env.VKONTAKTE_CLIENTSECRET,

@@ -8,3 +8,7 @@ visit http://localhost:3000/login
 добавлена строчка 174
  if (params && params.email) profile.emails = [{value:params.email}];///////////////edited by Alexchetv
  для того чтобы получать email из вконтакте
+
+
+в F:\matreshka-demo\node_modules\passport-github\lib\profile.js  изменена строчка
+ profile.displayName = json.name ? json.name : json.login;

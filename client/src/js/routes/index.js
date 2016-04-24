@@ -2,6 +2,7 @@ var Todos = require('./todos');
 var profile = require('./profile');
 var login = require('./login');
 var register = require('./register');
+var Thanks = require('./thanks');
 var lost = require('./lost');
 
 //список страниц: creator: класс страницы, restricted: доступ только авторизованным юзерам
@@ -26,6 +27,11 @@ var routesList = {
 		creator: register,
 		anonimOnly: true
 	},
+	/* Thanks after Registration*/
+	thanks : {
+		creator: Thanks,
+		anonimOnly: true
+	},
 	/* Page Not Found*/
 	lost : {
 		creator: lost
@@ -47,7 +53,7 @@ var Routes = Class({
 			.bindNode('container', '#page-content')
 			//событие изменения текущей страницы
 			.on('change:current', (evt) => {
-				console.log('change:routes.current', session.user_id, this.current,evt.attach);
+				console.log('change:routes.current', session.user_id, this.current);
 
 				//если страница задана
 				if (this.current) {
@@ -64,9 +70,9 @@ var Routes = Class({
 						} else {
 							//очищаем все (на самом деле одну) страницы
 							this.recreate();
-							//создаем страницу, передаем ей сессию и аттачмент
+							//создаем страницу, передаем ей сессию
 
-							this.push(new routesList[this.current].creator(session,evt.attach));
+							this.push(new routesList[this.current].creator(session));
 
 						}
 					} else {
